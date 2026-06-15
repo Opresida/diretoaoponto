@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ClipboardCheck, LogIn } from "lucide-react";
+import { LogIn } from "lucide-react";
 import { api, auth } from "../lib/api.js";
 
 const ALLOWED = ["supervisor", "manager", "admin"]; // checagem: supervisor+ (manager vê só a própria equipe)
@@ -32,7 +32,7 @@ export default function Login({ onLogin }) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <form onSubmit={submit} className="card p-6 w-full max-w-sm">
-        <ClipboardCheck size={36} className="text-emerald-400 mx-auto mb-2" />
+        <img src="/logo-white.png" alt="Direto ao Ponto" className="h-9 w-auto mx-auto mb-3" />
         <h1 className="text-lg font-bold text-center">Direto ao Ponto</h1>
         <p className="text-xs text-slate-400 text-center mb-5">Checagem · Supervisão</p>
         <input className="input mb-3" type="email" placeholder="E-mail" value={email}

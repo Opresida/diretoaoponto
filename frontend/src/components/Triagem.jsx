@@ -28,10 +28,10 @@ export default function Triagem({ pkg, onDone, onCancel }) {
         {quotas.map((q) => (
           <button key={q.id} onClick={() => { setQuotaId(q.id); setAge(String(q.age_min)); }}
             className={`p-2.5 rounded-el text-xs text-left border ${quotaId === q.id
-              ? "border-primary bg-emerald-900/20 text-emerald-200"
-              : "border-slate-700 bg-surface-2/60 text-slate-300"}`}>
+              ? "border-primary bg-brand-50 text-brand-dark"
+              : "border-slate-200 bg-surface-2 text-slate-700"}`}>
             <div className="font-semibold">{q.label}</div>
-            <div className="text-[11px] text-slate-400">{q.remaining} restantes</div>
+            <div className="text-[11px] text-slate-500">{q.remaining} restantes</div>
           </button>
         ))}
       </div>
@@ -41,7 +41,7 @@ export default function Triagem({ pkg, onDone, onCancel }) {
           <label className="text-xs text-slate-400">Idade do entrevistado ({quota.age_min}–{quota.age_max})</label>
           <input className="input mt-1 mb-1" type="number" inputMode="numeric" value={age}
             min={quota.age_min} max={quota.age_max} onChange={(e) => setAge(e.target.value)} />
-          {!ageOk && age !== "" && <p className="text-[11px] text-rose-400 mb-2">Idade fora da faixa da cota.</p>}
+          {!ageOk && age !== "" && <p className="text-[11px] text-rose-600 mb-2">Idade fora da faixa da cota.</p>}
           <p className="text-[11px] text-slate-500 mb-4">Sexo: {quota.sex === "F" ? "Feminino" : "Masculino"}</p>
         </>
       )}

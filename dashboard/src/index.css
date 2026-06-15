@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --primary: #10b981;
-  --primary-2: #34d399;
+  --primary: #A81824;
+  --primary-2: #D81830;
 }
 html, body, #root { height: 100%; }
 body { margin: 0; background: #020617; color: #f1f5f9; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; }

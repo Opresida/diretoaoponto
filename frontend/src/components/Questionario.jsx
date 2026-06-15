@@ -6,11 +6,11 @@ import { CheckCircle2, ArrowRight, ArrowLeft, User } from "lucide-react";
 function CandAvatar({ c }) {
   const [err, setErr] = useState(false);
   if (c.photo && !err) {
-    return <img src={c.photo} alt="" onError={() => setErr(true)} className="w-9 h-9 rounded-full object-cover shrink-0 border border-slate-600" />;
+    return <img src={c.photo} alt="" onError={() => setErr(true)} className="w-9 h-9 rounded-full object-cover shrink-0 border border-slate-200" />;
   }
   return (
-    <span className="w-9 h-9 rounded-full shrink-0 flex items-center justify-center border border-slate-700" style={{ background: (c.color || "#334155") + "33" }}>
-      <User size={16} style={{ color: c.color || "#64748b" }} />
+    <span className="w-9 h-9 rounded-full shrink-0 flex items-center justify-center border border-slate-200" style={{ background: (c.color || "#A81824") + "1f" }}>
+      <User size={16} style={{ color: c.color || "#A81824" }} />
     </span>
   );
 }
@@ -81,7 +81,7 @@ export default function Questionario({ pkg, onDone, onCancel }) {
     <div className="min-h-full p-4 max-w-md mx-auto flex flex-col">
       {/* Progresso */}
       <div className="mb-4">
-        <div className="flex justify-between text-[11px] text-slate-400 mb-1">
+        <div className="flex justify-between text-[11px] text-slate-500 mb-1">
           <span>Pergunta {step + 1} de {total}</span>
           <span>{Math.round(((step + 1) / total) * 100)}%</span>
         </div>
@@ -104,10 +104,10 @@ export default function Questionario({ pkg, onDone, onCancel }) {
             {(ordered[q.code] ?? []).map((c) => (
               <button key={c.name} onClick={() => set(q.code, c.name)}
                 className={`w-full flex items-center gap-2.5 p-2.5 rounded-el text-sm text-left border ${
-                  val === c.name ? "border-primary bg-emerald-900/20 text-emerald-200" : "border-slate-700 text-slate-300"}`}>
+                  val === c.name ? "border-primary bg-brand-50 text-brand-dark font-medium" : "border-slate-200 text-slate-700"}`}>
                 <CandAvatar c={c} />
                 {c.name}
-                {val === c.name && <CheckCircle2 size={16} className="ml-auto text-primary-light" />}
+                {val === c.name && <CheckCircle2 size={16} className="ml-auto text-primary" />}
               </button>
             ))}
           </div>
@@ -120,10 +120,10 @@ export default function Questionario({ pkg, onDone, onCancel }) {
               return (
                 <button key={c.name} onClick={() => toggleMulti(q.code, c.name)}
                   className={`w-full flex items-center gap-2.5 p-2.5 rounded-el text-sm text-left border ${
-                    on ? "border-rose-500 bg-rose-900/20 text-rose-200" : "border-slate-700 text-slate-300"}`}>
+                    on ? "border-rose-400 bg-rose-50 text-rose-700 font-medium" : "border-slate-200 text-slate-700"}`}>
                   <CandAvatar c={c} />
                   {c.name}
-                  {on && <CheckCircle2 size={16} className="ml-auto text-rose-300" />}
+                  {on && <CheckCircle2 size={16} className="ml-auto text-rose-500" />}
                 </button>
               );
             })}
@@ -135,14 +135,14 @@ export default function Questionario({ pkg, onDone, onCancel }) {
             {q.scale.map((opt) => (
               <button key={opt} onClick={() => set(q.code, opt)}
                 className={`px-3.5 py-2 rounded-el text-sm border ${
-                  val === opt ? "border-primary bg-emerald-900/20 text-emerald-200" : "border-slate-700 text-slate-300"}`}>
+                  val === opt ? "border-primary bg-brand-50 text-brand-dark font-medium" : "border-slate-200 text-slate-700"}`}>
                 {opt}
               </button>
             ))}
           </div>
         )}
 
-        {senDup && <p className="text-xs text-rose-400 mt-3">O 2º voto deve ser diferente do 1º.</p>}
+        {senDup && <p className="text-xs text-rose-600 mt-3">O 2º voto deve ser diferente do 1º.</p>}
         {REQUIRED.includes(q.code) && !answered && (
           <p className="text-[11px] text-slate-500 mt-3">Esta pergunta é obrigatória.</p>
         )}

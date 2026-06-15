@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ShieldCheck, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import Verificar from "./Verificar.jsx";
 import VerificarRelatorio from "./VerificarRelatorio.jsx";
 import Cadastro from "./Cadastro.jsx";
@@ -25,7 +25,7 @@ function Home() {
   return (
     <div className="page">
       <form onSubmit={go} className="card" style={{ padding: 24, maxWidth: 420, width: "100%", textAlign: "center" }}>
-        <ShieldCheck size={40} style={{ color: "#34d399" }} />
+        <img src="/logo-lockup.png" alt="Direto ao Ponto" style={{ height: 40, width: "auto", display: "block", margin: "0 auto 8px" }} />
         <h1 style={{ fontSize: 18, fontWeight: 700, marginTop: 8 }}>Verificação de entrevista</h1>
         <p style={{ fontSize: 13, color: "#94a3b8", marginTop: 4, marginBottom: 20 }}>
           Digite o código do recibo (ex.: DAP-2026-XXXX-XXXX) para verificar a integridade.

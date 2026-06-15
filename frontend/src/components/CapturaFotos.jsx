@@ -40,8 +40,8 @@ export default function CapturaFotos({ gps, onConcluir, onPular }) {
   return (
     <div className="p-4 max-w-md mx-auto space-y-4">
       {consentFoto === null && (
-        <div className="card p-4 text-sm text-slate-300 leading-relaxed">
-          <p className="font-semibold text-slate-100 mb-2">Leia para o entrevistado:</p>
+        <div className="card p-4 text-sm text-slate-600 leading-relaxed">
+          <p className="font-semibold text-slate-900 mb-2">Leia para o entrevistado:</p>
           <p>
             "Por exigência de auditoria do instituto, precisamos registrar até 3 fotos suas
             durante a entrevista. As imagens são confidenciais, usadas apenas para comprovar
@@ -69,7 +69,7 @@ export default function CapturaFotos({ gps, onConcluir, onPular }) {
               ) : (
                 <button key={i} disabled={i !== fotos.length} onClick={() => inputRef.current?.click()}
                   className={`aspect-[3/4] rounded-el border-2 border-dashed flex flex-col items-center justify-center gap-1 text-xs ${
-                    i === fotos.length ? "border-emerald-600 text-emerald-400 bg-emerald-900/10" : "border-slate-800 text-slate-600"}`}>
+                    i === fotos.length ? "border-primary text-primary bg-brand-50" : "border-slate-300 text-slate-400"}`}>
                   <Camera size={20} /> Foto {i + 1}
                 </button>
               ),
@@ -82,7 +82,7 @@ export default function CapturaFotos({ gps, onConcluir, onPular }) {
             <span>{fotos.length}/{MAX_FOTOS}</span>
           </div>
           {fotos.length === 0 && (
-            <div className="text-xs text-amber-300 bg-amber-900/20 border border-amber-700 rounded-lg p-2 flex gap-2">
+            <div className="text-xs text-amber-800 bg-amber-50 border border-amber-300 rounded-lg p-2 flex gap-2">
               <AlertTriangle size={13} className="shrink-0 mt-0.5" />
               Sem fotos, a entrevista recebe flag "missing_photos" e vai para checagem prioritária.
             </div>

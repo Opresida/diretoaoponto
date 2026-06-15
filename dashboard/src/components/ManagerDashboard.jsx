@@ -73,7 +73,9 @@ export default function ManagerDashboard({ user, onLogout }) {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-3 sm:p-4 max-w-6xl mx-auto overflow-x-hidden">
       <header className="flex items-center justify-between gap-2 mb-4">
-        <div className="min-w-0">
+        <div className="flex items-center gap-2 min-w-0">
+          <img src="/logo-white.png" alt="Direto ao Ponto" className="h-6 w-auto shrink-0" />
+          <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-base sm:text-lg font-bold flex items-center gap-1.5"><MapPin size={16} className="text-emerald-400" />{s.name}</h1>
             <span className={`flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full border ${wsOpen ? "text-emerald-300 border-emerald-700 bg-emerald-900/30" : "text-slate-400 border-slate-700 bg-slate-800"}`}>
@@ -81,6 +83,7 @@ export default function ManagerDashboard({ user, onLogout }) {
             </span>
           </div>
           <div className="text-xs text-slate-400 mt-0.5">Minha zona · {user?.name} · parciais não ponderadas</div>
+          </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <div className="flex gap-1 bg-slate-800 rounded-xl p-1">

@@ -25,7 +25,7 @@ function Avatar({ c, bust }) {
 
 export default function Candidatos() {
   const [list, setList] = useState([]);
-  const [form, setForm] = useState({ name: "", party: "", office: "governor", color: "#34d399", photoUrl: "" });
+  const [form, setForm] = useState({ name: "", party: "", office: "governor", color: "#A81824", photoUrl: "" });
   const [editing, setEditing] = useState(null);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);

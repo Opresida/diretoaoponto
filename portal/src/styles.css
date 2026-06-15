@@ -1,15 +1,16 @@
-/* Design system unificado — PROMPT §14.5 (fonte única de verdade visual). */
+/* Identidade oficial "Direto ao Ponto" — Portal público de verificação (superfície CLARA). */
 :root {
-  --bg: #020617;
-  --surface: #0f172a;
-  --surface-2: #1e293b;
-  --border: #1e293b;
-  --text: #f1f5f9;
-  --muted: #94a3b8;
-  --primary: #10b981;
-  --primary-2: #34d399;
-  --warn: #fbbf24;
-  --danger: #fb7185;
+  --bg: #FAF7F7;
+  --surface: #FFFFFF;
+  --surface-2: #F3ECEC;
+  --border: #EBDFDF;
+  --text: #1F2331;
+  --muted: #6B7280;
+  --primary: #A81824;
+  --primary-2: #D81830;
+  --warn: #B45309;
+  --danger: #C62828;
+  --ok: #2E9E4F;
   --radius: 16px;
   --radius-lg: 20px;
   --font: ui-sans-serif, system-ui, -apple-system, sans-serif;
@@ -21,7 +22,10 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
 
 .page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; }
 
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  box-shadow: 0 1px 2px rgba(31,35,49,.04), 0 10px 30px -18px rgba(168,24,36,.22);
+}
 
 .btn-primary, .btn-secondary {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
@@ -29,36 +33,45 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   font-size: 13px; font-weight: 600; transition: filter .15s; cursor: pointer; border: none; text-decoration: none;
 }
 .btn-primary { background: var(--primary); color: #fff; }
-.btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid #334155; }
-.btn-primary:hover, .btn-secondary:hover { filter: brightness(1.12); }
+.btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-secondary:hover { filter: brightness(.98); }
 
 .input {
   width: 100%; padding: 12px; border-radius: var(--radius);
-  background: var(--surface-2); border: 1px solid #334155; color: var(--text);
+  background: var(--surface); border: 1px solid var(--border); color: var(--text);
   font-size: 15px; font-family: var(--font-mono); letter-spacing: 1px; text-align: center;
 }
-.input:focus { outline: 2px solid var(--primary); }
+.input:focus { outline: 2px solid var(--primary); border-color: var(--primary); }
 
 .check-row {
   display: flex; gap: 10px; align-items: flex-start;
   padding: 12px; border-radius: var(--radius); font-size: 14px; margin-bottom: 8px;
 }
-.check-ok { background: rgba(16,185,129,.10); border: 1px solid rgba(16,185,129,.45); color: #d1fae5; }
-.check-ok svg { color: var(--primary-2); flex-shrink: 0; margin-top: 1px; }
-.check-pending { background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.35); color: #fde68a; }
+/* "selado/válido" mantém VERDE (semântica de confiança, como o check da apresentação) */
+.check-ok { background: rgba(46,158,79,.08); border: 1px solid rgba(46,158,79,.40); color: #166534; }
+.check-ok svg { color: var(--ok); flex-shrink: 0; margin-top: 1px; }
+.check-pending { background: rgba(180,83,9,.07); border: 1px solid rgba(180,83,9,.30); color: #92400e; }
 .check-pending svg { color: var(--warn); flex-shrink: 0; margin-top: 1px; }
 
 .alert-fail {
-  background: rgba(251,113,133,.10); border: 1px solid rgba(251,113,133,.5);
-  color: #fecdd3; border-radius: var(--radius); padding: 14px; font-size: 14px; line-height: 1.5;
+  background: rgba(198,40,40,.07); border: 1px solid rgba(198,40,40,.40);
+  color: #991b1b; border-radius: var(--radius); padding: 14px; font-size: 14px; line-height: 1.5;
 }
 
 .tec-toggle { display: flex; align-items: center; gap: 4px; margin: 14px auto 0; font-size: 12px; color: var(--muted); background: none; border: none; cursor: pointer; }
 .tec-toggle svg { transition: transform .2s; }
 .tec-box {
   margin-top: 10px; padding: 12px; border-radius: var(--radius);
-  background: #020617; border: 1px solid var(--border);
-  font-family: var(--font-mono); font-size: 11px; color: var(--primary-2);
+  background: #FBF7F7; border: 1px solid var(--border);
+  font-family: var(--font-mono); font-size: 11px; color: var(--text);
   overflow-x: auto; max-height: 260px;
 }
 .rotate-180 { transform: rotate(180deg); }
+
+/* Skeleton shimmer branded */
+.skeleton {
+  background: linear-gradient(90deg, #EFE7E7 25%, #F8F2F2 37%, #EFE7E7 63%);
+  background-size: 400% 100%; animation: dap-shimmer 1.4s ease infinite; border-radius: 10px;
+}
+@keyframes dap-shimmer { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }

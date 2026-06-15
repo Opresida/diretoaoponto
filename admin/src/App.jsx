@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, LogOut, Vote, Users, LayoutDashboard, Radio, MapPin, ClipboardList, FileText } from "lucide-react";
+import { LogOut, Vote, Users, LayoutDashboard, Radio, MapPin, ClipboardList, FileText } from "lucide-react";
 import { auth } from "./lib/api.js";
 import Login from "./components/Login.jsx";
 import Candidatos from "./components/Candidatos.jsx";
@@ -30,7 +30,7 @@ export default function App() {
     <div className="min-h-screen bg-slate-950 text-slate-100 p-3 sm:p-4 max-w-7xl mx-auto overflow-x-hidden">
       <header className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Shield size={20} className="text-emerald-400" />
+          <img src="/logo-white.png" alt="Direto ao Ponto" className="h-6 w-auto" />
           <div>
             <div className="font-bold leading-tight">Painel do Administrador</div>
             <div className="text-[11px] text-slate-400">Direto ao Ponto · {user.name}</div>

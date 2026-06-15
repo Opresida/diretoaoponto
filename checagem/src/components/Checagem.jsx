@@ -1,7 +1,7 @@
 // Fila de checagem do supervisor — flags primeiro (short_duration no topo).
 // Detalhe com áudio + fotos (links assinados) e aprovar/reprovar (CA #5/#6).
 import { useEffect, useState } from "react";
-import { ClipboardCheck, LogOut, AlertTriangle, MapPin, Clock, RefreshCw, Check, X, Image as ImageIcon } from "lucide-react";
+import { LogOut, AlertTriangle, MapPin, Clock, RefreshCw, Check, X, Image as ImageIcon } from "lucide-react";
 import { api, auth } from "../lib/api.js";
 
 const fmt = (s) => `${String(Math.floor((s ?? 0) / 60)).padStart(2, "0")}:${String((s ?? 0) % 60).padStart(2, "0")}`;
@@ -42,7 +42,7 @@ export default function Checagem({ user, onLogout }) {
     <div className="min-h-screen bg-slate-950 text-slate-100">
       <header className="flex items-center justify-between gap-2 p-3 sm:p-4 border-b border-slate-800 max-w-7xl mx-auto">
         <div className="flex items-center gap-2 min-w-0">
-          <ClipboardCheck size={20} className="text-emerald-400 shrink-0" />
+          <img src="/logo-white.png" alt="Direto ao Ponto" className="h-6 w-auto shrink-0" />
           <div className="min-w-0">
             <div className="font-bold leading-tight">Checagem de entrevistas</div>
             <div className="text-[11px] text-slate-400 truncate">{user?.name} · {queue.length} na fila</div>
@@ -138,7 +138,7 @@ export default function Checagem({ user, onLogout }) {
                 {msg && <p className="text-xs text-rose-400 mb-2">{msg}</p>}
                 <div className="grid grid-cols-2 gap-2">
                   <button onClick={() => decide("rejected")} disabled={busy} className="btn-danger"><X size={15} /> Reprovar</button>
-                  <button onClick={() => decide("approved")} disabled={busy} className="btn-primary"><Check size={15} /> Aprovar</button>
+                  <button onClick={() => decide("approved")} disabled={busy} className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold" style={{ background: "#2E9E4F", color: "#fff" }}><Check size={15} /> Aprovar</button>
                 </div>
                 <p className="text-[11px] text-slate-500 mt-2">Reprovar tira a entrevista da apuração e devolve a cota (gera reposição).</p>
               </div>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ShieldCheck, LogIn } from "lucide-react";
+import { LogIn } from "lucide-react";
 import { api, auth } from "../lib/api.js";
 
 export default function Login({ onLogin }) {
@@ -30,15 +30,14 @@ export default function Login({ onLogin }) {
   return (
     <div className="min-h-full flex items-center justify-center p-4">
       <form onSubmit={submit} className="card p-6 w-full max-w-sm">
-        <ShieldCheck size={36} className="text-primary-light mx-auto mb-2" />
-        <h1 className="text-lg font-bold text-center">Direto ao Ponto</h1>
-        <p className="text-xs text-slate-400 text-center mb-5">App de Campo · Entrevistador</p>
+        <img src="/logo-lockup.png" alt="Direto ao Ponto" className="h-14 w-auto mx-auto mb-3" />
+        <p className="text-xs text-slate-500 text-center mb-5">App de Campo · Entrevistador</p>
         <input className="input mb-3" type="email" placeholder="E-mail" value={email}
           autoCapitalize="none" autoCorrect="off" spellCheck={false} inputMode="email"
           onChange={(e) => setEmail(e.target.value)} required />
         <input className="input mb-3" type="password" placeholder="Senha" value={password}
           onChange={(e) => setPassword(e.target.value)} required />
-        {error && <p className="text-xs text-rose-400 mb-3">{error}</p>}
+        {error && <p className="text-xs text-rose-600 mb-3">{error}</p>}
         <button className="btn-primary w-full" disabled={loading}>
           <LogIn size={16} /> {loading ? "Entrando…" : "Entrar"}
         </button>

@@ -1,6 +1,6 @@
 // Cadastro por convite (F3) — página pública /cadastro/:token.
 import { useEffect, useState } from "react";
-import { ShieldCheck, ShieldAlert, UserPlus, CheckCircle2 } from "lucide-react";
+import { ShieldAlert, UserPlus, CheckCircle2 } from "lucide-react";
 
 export default function Cadastro({ token }) {
   const [ctx, setCtx] = useState(null);
@@ -36,9 +36,9 @@ export default function Cadastro({ token }) {
     const reason = ctx.reason === "used" ? "Este convite já foi utilizado." : ctx.reason === "expired" ? "Este convite expirou." : "Convite não encontrado.";
     return (
       <div className="page"><div className="card" style={{ padding: 24, maxWidth: 420, width: "100%", textAlign: "center" }}>
-        <ShieldAlert size={40} style={{ color: "#fb7185" }} />
+        <ShieldAlert size={40} style={{ color: "#C62828" }} />
         <h1 style={{ fontSize: 18, fontWeight: 700, marginTop: 8 }}>Cadastro indisponível</h1>
-        <p style={{ fontSize: 14, color: "#cbd5e1", marginTop: 6 }}>{reason}</p>
+        <p style={{ fontSize: 14, color: "#475569", marginTop: 6 }}>{reason}</p>
       </div></div>
     );
   }
@@ -48,9 +48,9 @@ export default function Cadastro({ token }) {
     const appLabel = done === "manager" ? "Painel de Apuração" : "App de Campo";
     return (
       <div className="page"><div className="card" style={{ padding: 24, maxWidth: 420, width: "100%", textAlign: "center" }}>
-        <CheckCircle2 size={40} style={{ color: "#34d399" }} />
+        <CheckCircle2 size={40} style={{ color: "#2E9E4F" }} />
         <h1 style={{ fontSize: 18, fontWeight: 700, marginTop: 8 }}>Cadastro concluído!</h1>
-        <p style={{ fontSize: 14, color: "#cbd5e1", marginTop: 6, marginBottom: 16 }}>Sua conta foi criada. Agora é só entrar no {appLabel} com seu e-mail e senha.</p>
+        <p style={{ fontSize: 14, color: "#475569", marginTop: 6, marginBottom: 16 }}>Sua conta foi criada. Agora é só entrar no {appLabel} com seu e-mail e senha.</p>
         <a href={appUrl} className="btn-primary" style={{ width: "100%" }}>Ir para o {appLabel}</a>
       </div></div>
     );
@@ -60,14 +60,14 @@ export default function Cadastro({ token }) {
     <div className="page">
       <form onSubmit={submit} className="card" style={{ padding: 24, maxWidth: 420, width: "100%" }}>
         <div style={{ textAlign: "center", marginBottom: 16 }}>
-          <ShieldCheck size={40} style={{ color: "#34d399" }} />
+          <img src="/logo-lockup.png" alt="Direto ao Ponto" style={{ height: 32, width: "auto", display: "block", margin: "0 auto 10px" }} />
           <h1 style={{ fontSize: 18, fontWeight: 700, marginTop: 8 }}>Cadastro por convite</h1>
-          <div style={{ fontSize: 13, color: "#34d399", marginTop: 4 }}>{ctx.contextLabel}</div>
+          <div style={{ fontSize: 13, color: "#A81824", marginTop: 4 }}>{ctx.contextLabel}</div>
         </div>
         <input className="input" style={{ textAlign: "left", marginBottom: 10 }} placeholder="Seu nome completo" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
         <input className="input" style={{ textAlign: "left", marginBottom: 10 }} type="email" placeholder="E-mail" autoCapitalize="none" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
         <input className="input" style={{ textAlign: "left", marginBottom: 10 }} type="password" placeholder="Crie uma senha (mín. 8)" minLength={8} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
-        {err && <p style={{ fontSize: 12, color: "#fb7185", marginBottom: 10 }}>{err}</p>}
+        {err && <p style={{ fontSize: 12, color: "#C62828", marginBottom: 10 }}>{err}</p>}
         <button className="btn-primary" style={{ width: "100%" }} disabled={busy}><UserPlus size={15} /> {busy ? "Cadastrando…" : "Concluir cadastro"}</button>
         <p style={{ fontSize: 11, color: "#64748b", textAlign: "center", marginTop: 14 }}>Convite de uso único.</p>
       </form>

@@ -4,18 +4,29 @@
 //   • barras de título de seção (fundo tênue + acento lateral + texto da marca)
 //   • rodapé com regra + identificação + paginação
 //   • bloco de autenticação/integridade: QR + campos + caixa de hash + link
-// Adaptado à marca da plataforma (emerald) e ao engine pdfkit (server-side).
+// Adaptado à identidade oficial "Direto ao Ponto" (carmim) e ao engine pdfkit (server-side).
 import PDFDocument from "pdfkit";
 import QRCode from "qrcode";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import type { ReportPayload } from "./reportService.js";
 
-const BRAND = "#047857";       // emerald-700 (timbre)
-const BRAND_DK = "#065f46";    // emerald-800
-const INK = "#0f172a";
-const MUTE = "#64748b";
-const LINE = "#e2e8f0";
-const TINT = "#ecfdf5";        // emerald-50 (fundo de seção/selo)
+const BRAND = "#A81824";       // carmim (timbre/seções)
+const BRAND_DK = "#7A0C18";    // carmim escuro
+const INK = "#1F2331";
+const MUTE = "#6B7280";
+const LINE = "#ECE4E4";
+const TINT = "#FCF0F0";        // carmim-50 (fundo de seção)
 const WHITE = "#ffffff";
+const OK = "#2E9E4F";          // verde — selo "ancorado/válido" (semântica de confiança)
+const OK_TINT = "#ECFDF3";
+const OK_BORDER = "#A7D9BC";
+
+// Logo (knockout branco) p/ a faixa timbrada carmim. Resolvido a partir da raiz do backend.
+function loadLogoWhite(): Buffer | null {
+  try { return readFileSync(join(process.cwd(), "assets", "logo-white.png")); }
+  catch { return null; }
+}
 const FLAG_LABEL: Record<string, string> = {
   short_duration: "duração curta", gps_outside: "GPS fora",
   missing_photos: "sem fotos", hash_mismatch: "hash divergente",
@@ -48,25 +59,28 @@ export async function renderReportPdf(input: RenderInput): Promise<Buffer> {
     margin: 1, width: 320, errorCorrectionLevel: "M", color: { dark: BRAND_DK, light: WHITE },
   });
   const f = payload.ficha;
+  const logo = loadLogoWhite();
 
-  const doc = new PDFDocument({ size: "A4", margin: 48, bufferPages: true });
+  const doc = new PDFDocument({ size: "A4", margin: 60, bufferPages: true });
   const chunks: Buffer[] = [];
   doc.on("data", (c: Buffer) => chunks.push(c));
   const done = new Promise<Buffer>((resolve) => doc.on("end", () => resolve(Buffer.concat(chunks))));
 
   const PW = doc.page.width, PH = doc.page.height;
-  const L = 48, R = PW - 48, W = R - L;
-  const HEADER_H = 76;
+  const L = 60, R = PW - 60, W = R - L;
+  const HEADER_H = 84;
 
-  // ─── Faixa timbrada (em toda página) ────────────────────────────────
+  // ─── Faixa timbrada carmim (em toda página) ─────────────────────────
   const header = () => {
     doc.rect(0, 0, PW, HEADER_H).fill(BRAND);
-    doc.fillColor(WHITE).font("Helvetica-Bold").fontSize(18).text(f.instituto, L, 20, { lineBreak: false });
-    doc.fillColor("#d1fae5").font("Helvetica").fontSize(8.5)
-      .text("Pesquisa de opinião e intenção de voto", L, 44, { lineBreak: false });
-    doc.fillColor("#a7f3d0").fontSize(7.5)
-      .text("Integridade verificável da coleta ao resultado · ancoragem em blockchain (Base)", L, 56, { lineBreak: false });
-    doc.rect(0, HEADER_H, PW, 2).fill(BRAND_DK);
+    let tx = L;
+    if (logo) { doc.image(logo, L, 22, { height: 38 }); tx = L + 124; }
+    doc.fillColor(WHITE).font("Helvetica-Bold").fontSize(13).text(f.instituto, tx, 26, { lineBreak: false });
+    doc.fillColor("#FBD9DD").font("Helvetica").fontSize(8.5)
+      .text("Pesquisa de opinião e intenção de voto", tx, 44, { lineBreak: false });
+    doc.fillColor("#F3B6BC").fontSize(7.5)
+      .text("Integridade verificável da coleta ao resultado · ancoragem em blockchain (Base)", tx, 56, { lineBreak: false });
+    doc.rect(0, HEADER_H, PW, 3).fill(BRAND_DK);
     doc.fillColor(INK);
   };
 
@@ -126,8 +140,8 @@ export async function renderReportPdf(input: RenderInput): Promise<Buffer> {
   y = doc.y + 18;
   const ok = status === "anchored";
   const boxH = txHash ? 108 : 84;
-  doc.roundedRect(L, y, W, boxH, 8).fillAndStroke(ok ? TINT : "#f8fafc", ok ? "#a7f3d0" : LINE);
-  doc.fillColor(ok ? BRAND_DK : MUTE).font("Helvetica-Bold").fontSize(11)
+  doc.roundedRect(L, y, W, boxH, 8).fillAndStroke(ok ? OK_TINT : "#FBF7F7", ok ? OK_BORDER : LINE);
+  doc.fillColor(ok ? OK : MUTE).font("Helvetica-Bold").fontSize(11)
     .text(ok ? "DOCUMENTO ANCORADO NA BLOCKCHAIN (BASE)" : "SELO LOCAL — ancoragem on-chain pendente", L + 14, y + 12, { lineBreak: false });
   let by = y + 32;
   doc.fillColor(MUTE).font("Helvetica-Bold").fontSize(8).text("Hash SHA-256 do conteúdo", L + 14, by);

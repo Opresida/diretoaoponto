@@ -4,7 +4,7 @@ import { MapPin, Clock, AlertTriangle, Mic, Image as ImageIcon, RefreshCw } from
 import { api } from "../lib/api.js";
 
 const fmt = (s) => `${String(Math.floor((s ?? 0) / 60)).padStart(2, "0")}:${String((s ?? 0) % 60).padStart(2, "0")}`;
-const STATUS = { synced: ["Sincronizada", "text-slate-300 border-slate-700"], approved: ["Aprovada", "text-emerald-300 border-emerald-700 bg-emerald-900/20"], rejected: ["Reprovada", "text-rose-300 border-rose-700 bg-rose-900/20"], pending_check: ["Em checagem", "text-amber-300 border-amber-700 bg-amber-900/20"] };
+const STATUS = { synced: ["Sincronizada", "text-slate-300 border-slate-700"], approved: ["Aprovada", "text-ok border-[#2E9E4F]/50 bg-[#2E9E4F]/15"], rejected: ["Reprovada", "text-rose-300 border-rose-700 bg-rose-900/20"], pending_check: ["Em checagem", "text-amber-300 border-amber-700 bg-amber-900/20"] };
 const FLAG_LABEL = { short_duration: "duração curta", gps_outside: "GPS fora", missing_photos: "sem fotos", hash_mismatch: "hash divergente" };
 
 export default function Entrevistas() {

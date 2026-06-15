@@ -10,11 +10,14 @@ export default function Home({ user, pkg, pending, online, syncing, onStart, onS
   return (
     <div className="min-h-full p-4 max-w-md mx-auto">
       <header className="flex items-center justify-between mb-4">
-        <div>
-          <div className="text-sm font-bold">{user?.name}</div>
-          <div className="text-[11px] text-slate-400 flex items-center gap-1">
-            {online ? <Wifi size={11} className="text-primary-light" /> : <WifiOff size={11} className="text-amber-400" />}
-            {online ? "online" : "offline"}
+        <div className="flex items-center gap-2.5">
+          <img src="/logo-lockup.png" alt="Direto ao Ponto" className="h-8 w-auto" />
+          <div>
+            <div className="text-sm font-bold leading-tight">{user?.name}</div>
+            <div className="text-[11px] text-slate-500 flex items-center gap-1">
+              {online ? <Wifi size={11} className="text-ok" /> : <WifiOff size={11} className="text-amber-500" />}
+              {online ? "online" : "offline"}
+            </div>
           </div>
         </div>
         <button onClick={onLogout} className="text-slate-400 p-2"><LogOut size={18} /></button>
@@ -22,16 +25,16 @@ export default function Home({ user, pkg, pending, online, syncing, onStart, onS
 
       {pending > 0 && (
         <button onClick={onSync} disabled={!online || syncing}
-          className="w-full mb-4 bg-amber-900/20 border border-amber-700 rounded-el p-3 flex items-center justify-between text-sm">
-          <span className="text-amber-300">{pending} entrevista(s) pendente(s) de envio</span>
-          <span className="flex items-center gap-1 text-amber-200 font-semibold">
+          className="w-full mb-4 bg-amber-50 border border-amber-300 rounded-el p-3 flex items-center justify-between text-sm">
+          <span className="text-amber-800">{pending} entrevista(s) pendente(s) de envio</span>
+          <span className="flex items-center gap-1 text-amber-900 font-semibold">
             <RefreshCw size={14} className={syncing ? "animate-spin" : ""} /> {syncing ? "Enviando" : "Sincronizar"}
           </span>
         </button>
       )}
       {pending === 0 && (
-        <div className="w-full mb-4 bg-emerald-900/10 border border-emerald-800 rounded-el p-3 flex items-center gap-2 text-sm text-emerald-300">
-          <CheckCircle2 size={15} /> Tudo sincronizado
+        <div className="w-full mb-4 bg-[#ecfdf5] border border-[#bbf7d0] rounded-el p-3 flex items-center gap-2 text-sm text-[#166534]">
+          <CheckCircle2 size={15} className="text-ok" /> Tudo sincronizado
         </div>
       )}
 
@@ -44,11 +47,11 @@ export default function Home({ user, pkg, pending, online, syncing, onStart, onS
           {strata.map((st) => {
             const rem = st.quotas.reduce((a, q) => a + Number(q.remaining), 0);
             return (
-              <div key={st.id} className="bg-surface-2/60 border border-slate-700 rounded-el p-2.5 text-xs">
+              <div key={st.id} className="bg-surface-2 border border-slate-200 rounded-el p-2.5 text-xs">
                 <div className="flex items-center gap-1 font-semibold">
-                  <MapPin size={11} className="text-primary-light" /> {st.name}
+                  <MapPin size={11} className="text-primary" /> {st.name}
                 </div>
-                <div className="text-slate-400 mt-0.5">{rem} entrevistas restantes ({st.region})</div>
+                <div className="text-slate-500 mt-0.5">{rem} entrevistas restantes ({st.region})</div>
               </div>
             );
           })}
