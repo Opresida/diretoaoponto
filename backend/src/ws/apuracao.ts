@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken";
 let wss: WebSocketServer | null = null;
 
 const RANK: Record<string, number> = {
+  statistician: 3,
   coordinator: 4,
   manager: 5,
   admin: 6,
@@ -20,7 +21,7 @@ export function attachApuracaoWs(server: Server): void {
     try {
       const token = new URL(req.url, "http://x").searchParams.get("token") ?? "";
       const user = jwt.verify(token, process.env.JWT_SECRET!) as { role: string };
-      if ((RANK[user.role] ?? -1) < RANK.coordinator!) throw new Error("forbidden");
+      if ((RANK[user.role] ?? -1) < RANK.statistician!) throw new Error("forbidden");
       wss!.handleUpgrade(req, socket, head, (ws) => wss!.emit("connection", ws, req));
     } catch {
       socket.destroy();

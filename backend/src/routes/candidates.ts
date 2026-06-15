@@ -18,8 +18,8 @@ const CandidateSchema = z.object({
   photoUrl: z.string().url().nullable().optional(),
 });
 
-// GET /api/candidates — lista (com nº de votos + flag de foto), coordinator+.
-router.get("/", requireRole("coordinator"), async (_req, res, next) => {
+// GET /api/candidates — lista (com nº de votos + flag de foto), statistician+.
+router.get("/", requireRole("statistician"), async (_req, res, next) => {
   try {
     const r = await db.execute(sql`
       SELECT c.id, c.name, c.party, c.office, c.color,

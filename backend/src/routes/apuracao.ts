@@ -14,7 +14,8 @@ import {
 import { getSnapshot } from "../services/cache.js";
 
 const router = Router();
-router.use(requireRole("coordinator"));
+// Leitura da apuração: coordenação/estatística (estatístico = analista de dados).
+router.use(requireRole("statistician"));
 
 // Apuração de UMA zona — dashboard do gerente (própria zona) ou coordinator+
 // com ?stratumId. PROMPT: cada gerente vê exclusivamente a zona dele.
