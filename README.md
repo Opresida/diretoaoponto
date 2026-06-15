@@ -1,4 +1,4 @@
-# Direito ao Ponto
+# Direto ao Ponto
 
 Plataforma de **pesquisa eleitoral de intenção de voto** — coleta de campo offline-first + apuração em tempo real, com **integridade verificável da coleta ao resultado** (selo blockchain na rede Base).
 
