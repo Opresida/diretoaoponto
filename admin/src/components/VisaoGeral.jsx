@@ -74,11 +74,10 @@ export default function VisaoGeral() {
 
       {/* ATALHOS */}
       <div className="grid sm:grid-cols-2 gap-3">
-        <a href="http://localhost:5175" target="_blank" rel="noreferrer" className="card p-4 flex items-center gap-3 hover:brightness-110">
+        <div className="card p-4 flex items-center gap-3">
           <BarChart3 size={20} className="text-emerald-400" />
-          <div><div className="font-semibold text-sm">Dashboard de Apuração</div><div className="text-xs text-slate-500">placar ao vivo (coordenação)</div></div>
-          <ExternalLink size={14} className="ml-auto text-slate-500" />
-        </a>
+          <div><div className="font-semibold text-sm">Apuração ao vivo</div><div className="text-xs text-slate-500">na aba "Apuração" aqui no painel</div></div>
+        </div>
         <a href="http://localhost:5174" target="_blank" rel="noreferrer" className="card p-4 flex items-center gap-3 hover:brightness-110">
           <Users size={20} className="text-emerald-400" />
           <div><div className="font-semibold text-sm">Portal de Verificação</div><div className="text-xs text-slate-500">consulta pública de recibos</div></div>
