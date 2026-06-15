@@ -23,7 +23,7 @@ export default function App() {
   if (!user) return <Login onLogin={setUser} />;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-3 sm:p-4 max-w-5xl mx-auto overflow-x-hidden">
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-3 sm:p-4 max-w-7xl mx-auto overflow-x-hidden">
       <header className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Shield size={20} className="text-emerald-400" />

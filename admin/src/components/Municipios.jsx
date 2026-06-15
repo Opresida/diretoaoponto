@@ -70,7 +70,7 @@ export default function Municipios() {
 
       <div className="card p-4">
         <div className="font-semibold text-sm mb-3">Interior · na pesquisa <span className="text-slate-500 font-normal">({inResearch.length})</span></div>
-        <div className="space-y-2">
+        <div className="grid gap-2 lg:grid-cols-2">
           {inResearch.length === 0 && <div className="text-xs text-slate-500">Nenhum município na pesquisa.</div>}
           {inResearch.map((m) => <Row key={m.id} m={m} />)}
         </div>
@@ -78,7 +78,7 @@ export default function Municipios() {
 
       <div className="card p-4">
         <div className="font-semibold text-sm mb-3">Interior · fora da pesquisa <span className="text-slate-500 font-normal">({fora.length})</span></div>
-        <div className="space-y-2 max-h-96 overflow-auto">
+        <div className="grid gap-2 lg:grid-cols-2 max-h-96 overflow-auto">
           {fora.map((m) => <Row key={m.id} m={m} />)}
         </div>
       </div>

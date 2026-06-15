@@ -113,7 +113,7 @@ export default function Candidatos() {
       {OFFICES.map(([o, label]) => (
         <div key={o} className="card p-4">
           <div className="font-semibold text-sm mb-3">{label} <span className="text-slate-500 font-normal">({byOffice(o).length})</span></div>
-          <div className="space-y-2">
+          <div className="grid gap-2 lg:grid-cols-2">
             {byOffice(o).length === 0 && <div className="text-xs text-slate-500">Nenhum candidato.</div>}
             {byOffice(o).map((c) => editing?.id === c.id ? (
               <div key={c.id} className="flex flex-wrap items-center gap-2 bg-surface-2/60 border border-slate-700 rounded-el p-2">

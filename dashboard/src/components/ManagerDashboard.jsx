@@ -63,7 +63,7 @@ export default function ManagerDashboard({ user, onLogout }) {
   const flagsTotal = (data.flags ?? []).reduce((a, f) => a + Number(f.count), 0);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-3 sm:p-4 max-w-3xl mx-auto overflow-x-hidden">
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-3 sm:p-4 max-w-6xl mx-auto overflow-x-hidden">
       <header className="flex items-center justify-between gap-2 mb-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
