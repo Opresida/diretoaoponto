@@ -44,12 +44,18 @@ router.get("/snapshot", async (_req, res, next) => {
 });
 
 const RecorteSchema = z.enum(["total", "manaus", "interior"]).default("total");
+const geoOf = (req: { query: Record<string, unknown> }) => {
+  const zone = req.query.zone ? String(req.query.zone) : undefined;
+  const municipality = req.query.municipality ? String(req.query.municipality) : undefined;
+  return zone || municipality ? { zone, municipality } : undefined;
+};
 
 router.get("/governo", async (req, res, next) => {
   try {
     const recorte = RecorteSchema.parse(req.query.recorte ?? "total") as Recorte;
     const scenario = z.string().default("c1").parse(req.query.scenario ?? "c1");
-    res.json({ scenario, recorte, ranking: await apuracaoGoverno(scenario, recorte) });
+    const geo = geoOf(req);
+    res.json({ scenario, recorte, geo, ranking: await apuracaoGoverno(scenario, recorte, geo) });
   } catch (e) {
     next(e);
   }
@@ -60,7 +66,23 @@ router.get("/senado", async (req, res, next) => {
     const recorte = RecorteSchema.parse(req.query.recorte ?? "total") as Recorte;
     const base = z.coerce.number().pipe(z.union([z.literal(100), z.literal(200)])).default(100)
       .parse(req.query.base ?? 100) as 100 | 200;
-    res.json({ base, recorte, ranking: await apuracaoSenado(base, recorte) });
+    const geo = geoOf(req);
+    res.json({ base, recorte, geo, ranking: await apuracaoSenado(base, recorte, geo) });
+  } catch (e) {
+    next(e);
+  }
+});
+
+// GET /api/apuracao/geo — opções do filtro: zonas de Manaus + municípios em pesquisa.
+router.get("/geo", async (_req, res, next) => {
+  try {
+    const r = await db.execute(sql`
+      SELECT zone, municipality, region, id AS stratum_id
+      FROM strata WHERE region = 'manaus' OR municipality_id IN (SELECT id FROM municipalities WHERE in_research)
+      ORDER BY region, zone, municipality`);
+    const manaus = r.rows.filter((x) => x.region === "manaus").map((x) => ({ zone: x.zone, stratumId: x.stratum_id }));
+    const interior = r.rows.filter((x) => x.region === "interior").map((x) => ({ municipality: x.municipality, stratumId: x.stratum_id }));
+    res.json({ manaus, interior });
   } catch (e) {
     next(e);
   }

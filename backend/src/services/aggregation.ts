@@ -17,10 +17,21 @@ function regionParam(recorte: Recorte): "manaus" | "interior" | null {
   return recorte === "total" ? null : recorte;
 }
 
-// ─── Governo ─────────────────────────────────────────────────────────
-export async function apuracaoGoverno(scenario: string, recorte: Recorte): Promise<RankRow[]> {
-  const qcode = `gov_${scenario}`; // c1 → gov_c1 ; spont → gov_spont
+// Filtro geográfico: zona (Manaus) ou município (interior) sobrepõem o recorte.
+export interface GeoFilter {
+  zone?: string;
+  municipality?: string;
+}
+function geoWhere(recorte: Recorte, geo?: GeoFilter) {
+  if (geo?.zone) return sql`s.zone = ${geo.zone}`;
+  if (geo?.municipality) return sql`s.municipality = ${geo.municipality}`;
   const region = regionParam(recorte);
+  return sql`(${region}::region_t IS NULL OR s.region = ${region}::region_t)`;
+}
+
+// ─── Governo ─────────────────────────────────────────────────────────
+export async function apuracaoGoverno(scenario: string, recorte: Recorte, geo?: GeoFilter): Promise<RankRow[]> {
+  const qcode = `gov_${scenario}`; // c1 → gov_c1 ; spont → gov_spont
   const r = await db.execute(sql`
     SELECT c.name, c.color, COUNT(*)::int AS votes,
            ROUND(100.0 * COUNT(*) / NULLIF(SUM(COUNT(*)) OVER (), 0), 1) AS pct
@@ -29,15 +40,14 @@ export async function apuracaoGoverno(scenario: string, recorte: Recorte): Promi
     JOIN strata s ON s.id = i.stratum_id
     JOIN candidates c ON c.id = a.candidate_id
     WHERE a.question_code = ${qcode}
-      AND (${region}::region_t IS NULL OR s.region = ${region}::region_t)
+      AND ${geoWhere(recorte, geo)}
     GROUP BY c.id, c.name, c.color
     ORDER BY votes DESC`);
   return r.rows.map(toRank);
 }
 
 // ─── Senado (2 votos) ────────────────────────────────────────────────
-export async function apuracaoSenado(base: 100 | 200, recorte: Recorte): Promise<RankRow[]> {
-  const region = regionParam(recorte);
+export async function apuracaoSenado(base: 100 | 200, recorte: Recorte, geo?: GeoFilter): Promise<RankRow[]> {
   const r = await db.execute(sql`
     SELECT c.name, c.color, COUNT(*)::int AS votes
     FROM answers a
@@ -45,7 +55,7 @@ export async function apuracaoSenado(base: 100 | 200, recorte: Recorte): Promise
     JOIN strata s ON s.id = i.stratum_id
     JOIN candidates c ON c.id = a.candidate_id
     WHERE a.question_code IN ('sen_v1','sen_v2')
-      AND (${region}::region_t IS NULL OR s.region = ${region}::region_t)
+      AND ${geoWhere(recorte, geo)}
     GROUP BY c.id, c.name, c.color
     ORDER BY votes DESC`);
 
@@ -63,7 +73,7 @@ export async function apuracaoSenado(base: 100 | 200, recorte: Recorte): Promise
     JOIN interviews i ON i.id = a.interview_id AND i.status <> 'rejected'
     JOIN strata s ON s.id = i.stratum_id
     WHERE a.question_code IN ('sen_v1','sen_v2')
-      AND (${region}::region_t IS NULL OR s.region = ${region}::region_t)`);
+      AND ${geoWhere(recorte, geo)}`);
   const voters = Number(v.rows[0]?.voters ?? 0);
 
   const denom = base === 100 ? totalVotes : voters;

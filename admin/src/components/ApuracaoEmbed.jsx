@@ -16,6 +16,7 @@ export default function ApuracaoEmbed() {
   const [serie, setSerie] = useState([]);
   const [aoVivo, setAoVivo] = useState(true);
   const [wsOpen, setWsOpen] = useState(false);
+  const [wsTick, setWsTick] = useState(0);
   const aoVivoRef = useRef(true);
   aoVivoRef.current = aoVivo;
 
@@ -32,6 +33,7 @@ export default function ApuracaoEmbed() {
       let ev; try { ev = JSON.parse(e.data); } catch { return; }
       if (ev.type !== "interview:new") return;
       setSnapshot(ev.apuracao);
+      setWsTick((t) => t + 1);
       setFeed((f) => [{ ...ev.interview, hora: hm() }, ...f].slice(0, 6));
       const realPct = {};
       (ev.apuracao.governo.total ?? []).filter((c) => !OPCOES.includes(c.name)).forEach((c) => { realPct[c.name] = c.pct; });
@@ -84,7 +86,7 @@ export default function ApuracaoEmbed() {
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
-        <RecorteRegional governo={snapshot.governo} />
+        <RecorteRegional governo={snapshot.governo} wsTick={wsTick} />
 
         {/* SENADO */}
         <div className="min-w-0 bg-slate-900 border border-slate-800 rounded-2xl p-4">

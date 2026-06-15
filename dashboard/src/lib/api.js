@@ -25,4 +25,11 @@ export const api = {
   snapshot: () => req("/apuracao/snapshot"),
   resumo: () => req("/apuracao/resumo"),
   scoped: () => req("/apuracao/scoped"),
+  geo: () => req("/apuracao/geo"),
+  governo: ({ recorte = "total", zone, municipality, scenario = "c1" } = {}) => {
+    const q = new URLSearchParams({ recorte, scenario });
+    if (zone) q.set("zone", zone);
+    if (municipality) q.set("municipality", municipality);
+    return req(`/apuracao/governo?${q}`);
+  },
 };

@@ -31,8 +31,18 @@ export const api = {
   listUsers: () => req("/users"),
   createUser: (u) => req("/users", { method: "POST", body: u }),
   setActive: (id, active) => req(`/users/${id}/active`, { method: "PATCH", body: { active } }),
-  // Dados
+  // Municípios
+  listMunicipalities: () => req("/municipalities"),
+  updateMunicipality: (id, body) => req(`/municipalities/${id}`, { method: "PATCH", body }),
+  // Dados / apuração
   resumo: () => req("/apuracao/resumo"),
   snapshot: () => req("/apuracao/snapshot"),
   listStrata: () => req("/strata"),
+  geo: () => req("/apuracao/geo"),
+  governo: ({ recorte = "total", zone, municipality, scenario = "c1" } = {}) => {
+    const q = new URLSearchParams({ recorte, scenario });
+    if (zone) q.set("zone", zone);
+    if (municipality) q.set("municipality", municipality);
+    return req(`/apuracao/governo?${q}`);
+  },
 };

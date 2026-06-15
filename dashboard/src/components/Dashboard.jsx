@@ -15,6 +15,7 @@ export default function Dashboard({ user, onLogout }) {
   const [serie, setSerie] = useState([]);
   const [aoVivo, setAoVivo] = useState(true);
   const [wsOpen, setWsOpen] = useState(false);
+  const [wsTick, setWsTick] = useState(0);
   const aoVivoRef = useRef(true);
   aoVivoRef.current = aoVivo;
 
@@ -40,6 +41,7 @@ export default function Dashboard({ user, onLogout }) {
       try { ev = JSON.parse(e.data); } catch { return; }
       if (ev.type !== "interview:new") return;
       setSnapshot(ev.apuracao);
+      setWsTick((t) => t + 1);
       const it = ev.interview;
       setFeed((f) => [{ ...it, hora: hm() }, ...f].slice(0, 6));
       if (it.flags?.length) setFlagsTotal((n) => n + 1);
@@ -129,7 +131,7 @@ export default function Dashboard({ user, onLogout }) {
 
       <div className="grid gap-3 sm:gap-4 lg:grid-cols-3">
         {/* RECORTE REGIONAL (governo) */}
-        <RecorteRegional governo={snapshot.governo} />
+        <RecorteRegional governo={snapshot.governo} wsTick={wsTick} />
 
         {/* RANKING SENADO */}
         <div className="min-w-0 bg-slate-900 border border-slate-800 rounded-2xl p-4">

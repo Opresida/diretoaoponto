@@ -3,10 +3,24 @@ import "dotenv/config";
 import bcrypt from "bcryptjs";
 import { sql } from "drizzle-orm";
 import { db } from "./src/db/index.js";
-import { projects, strata, quotas, candidates, users } from "./src/db/schema.js";
+import { projects, strata, quotas, candidates, users, municipalities } from "./src/db/schema.js";
+import { buildQuotaRows, splitTarget } from "./src/services/quotaService.js";
 
 const TSE = "AM-05275/2026";
 const PASSWORD = "senha123"; // DEV — trocar em produção
+
+// 62 municípios do Amazonas (Manaus = manaus; demais = interior).
+const MUN_62: Array<{ name: string; region: "manaus" | "interior" }> = [
+  "Alvarães","Amaturá","Anamã","Anori","Apuí","Atalaia do Norte","Autazes","Barcelos","Barreirinha",
+  "Benjamin Constant","Beruri","Boa Vista do Ramos","Boca do Acre","Borba","Caapiranga","Canutama",
+  "Carauari","Careiro","Careiro da Várzea","Coari","Codajás","Eirunepé","Envira","Fonte Boa","Guajará",
+  "Humaitá","Ipixuna","Iranduba","Itacoatiara","Itamarati","Itapiranga","Japurá","Juruá","Jutaí","Lábrea",
+  "Manacapuru","Manaquiri","Manicoré","Maraã","Maués","Nhamundá","Nova Olinda do Norte","Novo Airão",
+  "Novo Aripuanã","Parintins","Pauini","Presidente Figueiredo","Rio Preto da Eva","Santa Isabel do Rio Negro",
+  "Santo Antônio do Içá","São Gabriel da Cachoeira","São Paulo de Olivença","São Sebastião do Uatumã","Silves",
+  "Tabatinga","Tapauá","Tefé","Tonantins","Uarini","Urucará","Urucurituba",
+].map((name): { name: string; region: "manaus" | "interior" } => ({ name, region: "interior" }))
+  .concat([{ name: "Manaus", region: "manaus" }]);
 
 const ZONAS_MANAUS: Array<{ zone: string; target: number }> = [
   { zone: "Norte", target: 204 },
@@ -23,13 +37,6 @@ const MUNICIPIOS_INTERIOR = [
   "Presidente Figueiredo", "Borba", "Eirunepé",
 ];
 const INTERIOR_TOTAL = 324;
-
-const AGE_BANDS: Array<[number, number, string]> = [
-  [16, 24, "16–24"],
-  [25, 44, "25–44"],
-  [45, 59, "45–59"],
-  [60, 120, "60+"],
-];
 
 const CANDIDATOS_GOV = [
   { name: "David Almeida", party: "Avante", color: "#34d399" },
@@ -51,13 +58,7 @@ const NAO_CANDIDATOS = [
   { name: "NS/NR", party: null, color: "#475569" },
 ];
 
-/** Distribui um total inteiro em n partes o mais iguais possível. */
-function split(total: number, n: number): number[] {
-  const base = Math.floor(total / n);
-  const rem = total - base * n;
-  return Array.from({ length: n }, (_, i) => base + (i < rem ? 1 : 0));
-}
-
+// MUNICIPIOS_INTERIOR (14 amostrados) usa splitTarget de quotaService.
 async function main() {
   const exists = await db.execute(sql`SELECT id FROM projects WHERE tse_registration = ${TSE} LIMIT 1`);
   if (exists.rows.length) {
@@ -96,7 +97,7 @@ async function main() {
       region: "interior" as const,
       zone: null,
       municipality: m,
-      target: split(INTERIOR_TOTAL, MUNICIPIOS_INTERIOR.length)[i]!,
+      target: splitTarget(INTERIOR_TOTAL, MUNICIPIOS_INTERIOR.length)[i]!,
     })),
   ];
   const insertedStrata = await db
@@ -104,26 +105,23 @@ async function main() {
     .values(stratRows)
     .returning({ id: strata.id, target: strata.target });
 
-  // 3. Cotas por estrato (2 sexos × 4 faixas etárias)
-  const quotaRows = insertedStrata.flatMap((s) => {
-    const per = split(s.target, 2 * AGE_BANDS.length);
-    const cells: typeof quotas.$inferInsert[] = [];
-    let k = 0;
-    for (const [sex, label] of [["F", "Mulher"], ["M", "Homem"]] as const) {
-      for (const [ageMin, ageMax, band] of AGE_BANDS) {
-        cells.push({
-          stratumId: s.id,
-          label: `${label} · ${band}`,
-          sex,
-          ageMin,
-          ageMax,
-          target: per[k++]!,
-        });
-      }
-    }
-    return cells;
-  });
+  // 3. Cotas por estrato (2 sexos × 4 faixas) — buildQuotaRows compartilhado.
+  const quotaRows = insertedStrata.flatMap((s) =>
+    buildQuotaRows(s.target).map((q) => ({
+      stratumId: s.id,
+      label: q.label,
+      sex: q.sex,
+      ageMin: q.ageMin,
+      ageMax: q.ageMax,
+      target: q.target,
+    })),
+  );
   await db.insert(quotas).values(quotaRows);
+
+  // 3b. Catálogo dos 62 municípios + backfill (in_research nos 14 amostrados).
+  await db.insert(municipalities).values(MUN_62.map((m) => ({ projectId, name: m.name, region: m.region })));
+  await db.execute(sql`UPDATE strata s SET municipality_id = m.id FROM municipalities m WHERE m.project_id = s.project_id AND m.name = s.municipality AND s.municipality_id IS NULL`);
+  await db.execute(sql`UPDATE municipalities m SET in_research = true, target = s.target, stratum_id = s.id FROM strata s WHERE s.municipality_id = m.id AND m.region = 'interior'`);
 
   // 4. Candidatos (Governo + Senado + Branco/Nulo + NS/NR p/ cada cargo)
   const candRows = [

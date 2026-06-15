@@ -85,11 +85,29 @@ export const strata = pgTable(
     region: regionT("region").notNull(),
     zone: text("zone"), // Norte/Leste/Oeste/Centro-Oeste/Centro-Sul/Sul
     municipality: text("municipality").notNull(),
+    municipalityId: uuid("municipality_id"), // catálogo de municípios (interior); Manaus/zonas = null
     target: integer("target").notNull(),
     censusPolygon: jsonb("census_polygon"), // GeoJSON p/ validação de GPS
   },
   (t) => ({
     uq: unique("strata_project_name_uq").on(t.projectId, t.name),
+  }),
+);
+
+// ─── municipalities (catálogo dos 62 do AM; cadastrar = vira área de pesquisa) ─
+export const municipalities = pgTable(
+  "municipalities",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    projectId: uuid("project_id").notNull().references(() => projects.id),
+    name: text("name").notNull(),
+    region: regionT("region").notNull(), // manaus (só Manaus) | interior
+    inResearch: boolean("in_research").notNull().default(false),
+    target: integer("target"), // null até entrar na pesquisa
+    stratumId: uuid("stratum_id").references(() => strata.id), // estrato gerado quando in_research
+  },
+  (t) => ({
+    uq: unique("municipalities_project_name_uq").on(t.projectId, t.name),
   }),
 );
 

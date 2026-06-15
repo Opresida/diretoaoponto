@@ -21,6 +21,7 @@ import usersRoutes, { teamRouter } from "./routes/users.js";
 import anchorRoutes from "./routes/anchor.js";
 import candidatesRoutes from "./routes/candidates.js";
 import strataRoutes from "./routes/strata.js";
+import municipalitiesRoutes from "./routes/municipalities.js";
 
 const app = express();
 app.use(express.json({ limit: "2mb" }));
@@ -43,6 +44,7 @@ app.use("/api/team", requireAuth, teamRouter);
 app.use("/api/anchor", requireAuth, anchorRoutes);
 app.use("/api/candidates", requireAuth, candidatesRoutes);
 app.use("/api/strata", requireAuth, strataRoutes);
+app.use("/api/municipalities", requireAuth, municipalitiesRoutes);
 
 app.use(errorHandler);
 

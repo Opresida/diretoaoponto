@@ -1,31 +1,65 @@
-// Recorte Manaus × Interior (Governo) — PROMPT §7.
-import { useState } from "react";
+// Recorte com drill-down — PROMPT §7 + F1. 2 abas: Manaus→zonas, Interior→municípios.
+// "Todos" usa o snapshot (sem fetch); zona/município faz fetch sob demanda.
+import { useEffect, useState } from "react";
 import { Crown, MapPin } from "lucide-react";
+import { api } from "../lib/api.js";
 
 const OPCOES = ["Branco/Nulo", "NS/NR"];
 
-export default function RecorteRegional({ governo }) {
-  const [recorte, setRecorte] = useState("total");
-  const abas = [["total", "Amazonas"], ["manaus", "Manaus"], ["interior", "Interior"]];
-  const dados = governo?.[recorte] ?? [];
-  const candidatos = dados.filter((c) => !OPCOES.includes(c.name));
+export default function RecorteRegional({ governo, wsTick = 0 }) {
+  const [geo, setGeo] = useState({ manaus: [], interior: [] });
+  const [tab, setTab] = useState("manaus");
+  const [sel, setSel] = useState(null); // {zone} | {municipality} | null (Todos)
+  const [drill, setDrill] = useState(null); // ranking buscado
+  const [loading, setLoading] = useState(false);
 
-  const liderM = governo?.manaus?.filter((c) => !OPCOES.includes(c.name))[0];
-  const liderI = governo?.interior?.filter((c) => !OPCOES.includes(c.name))[0];
+  useEffect(() => { api.geo().then(setGeo).catch(() => {}); }, []);
+
+  // Busca sob demanda quando há zona/município selecionado (e ao chegar WS).
+  useEffect(() => {
+    if (!sel) { setDrill(null); return; }
+    setLoading(true);
+    api.governo({ ...sel }).then((r) => setDrill(r.ranking)).catch(() => setDrill([])).finally(() => setLoading(false));
+  }, [sel, wsTick]);
+
+  const dados = sel ? (drill ?? []) : (governo?.[tab] ?? []);
+  const chips = tab === "manaus"
+    ? geo.manaus.map((z) => ({ key: z.zone, label: z.zone, sel: { zone: z.zone } }))
+    : geo.interior.map((m) => ({ key: m.municipality, label: m.municipality, sel: { municipality: m.municipality } }));
+
+  const selKey = sel?.zone ?? sel?.municipality ?? null;
 
   return (
     <div className="min-w-0 bg-slate-900 border border-slate-800 rounded-2xl p-4">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-3">
-        <span className="font-semibold text-sm">Governo · Recorte regional</span>
-        <div className="flex gap-1 bg-slate-800 rounded-xl p-1 self-start sm:self-auto">
-          {abas.map(([v, l]) => (
-            <button key={v} onClick={() => setRecorte(v)}
-              className={`flex-1 sm:flex-none px-2.5 py-1 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${recorte === v ? "bg-emerald-600 text-white" : "text-slate-400"}`}>{l}</button>
-          ))}
-        </div>
+      <div className="font-semibold text-sm mb-2">Governo · Recorte regional</div>
+
+      {/* Abas Manaus / Interior */}
+      <div className="flex gap-1 bg-slate-800 rounded-xl p-1 mb-2">
+        {[["manaus", "Manaus"], ["interior", "Interior"]].map(([v, l]) => (
+          <button key={v} onClick={() => { setTab(v); setSel(null); }}
+            className={`flex-1 px-2.5 py-1 rounded-lg text-xs font-semibold ${tab === v ? "bg-emerald-600 text-white" : "text-slate-400"}`}>{l}</button>
+        ))}
       </div>
 
-      <div className="space-y-2.5 mb-4">
+      {/* Sub-seletor: Todos + zonas/municípios */}
+      <div className="flex flex-wrap gap-1 mb-3">
+        <button onClick={() => setSel(null)}
+          className={`px-2 py-0.5 rounded-lg text-[11px] border ${!sel ? "border-primary bg-emerald-900/30 text-emerald-200" : "border-slate-700 text-slate-400"}`}>
+          {tab === "manaus" ? "Todas as zonas" : "Todos os municípios"}
+        </button>
+        {chips.map((c) => (
+          <button key={c.key} onClick={() => setSel(c.sel)}
+            className={`px-2 py-0.5 rounded-lg text-[11px] border ${selKey === c.key ? "border-primary bg-emerald-900/30 text-emerald-200" : "border-slate-700 text-slate-400"}`}>
+            {c.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex items-center gap-1 text-xs text-slate-400 mb-2">
+        <MapPin size={11} />{selKey ?? (tab === "manaus" ? "Manaus (todas as zonas)" : "Interior (todos)")}{loading && " · carregando…"}
+      </div>
+
+      <div className="space-y-2.5">
         {dados.length === 0 && <div className="text-xs text-slate-500">Sem votos neste recorte ainda.</div>}
         {dados.map((c, i) => {
           const isCand = !OPCOES.includes(c.name);
@@ -45,22 +79,6 @@ export default function RecorteRegional({ governo }) {
             </div>
           );
         })}
-      </div>
-
-      <div className="grid grid-cols-2 gap-2 text-xs">
-        {[["Manaus", liderM], ["Interior", liderI]].map(([rotulo, l]) =>
-          l ? (
-            <div key={rotulo} className="bg-slate-800/60 border border-slate-700 rounded-xl p-3">
-              <div className="flex items-center gap-1 text-slate-400 mb-1"><MapPin size={11} />{rotulo} · liderando</div>
-              <div className="font-bold text-emerald-200 truncate">{l.name}</div>
-              <div style={{ color: l.color || "#94a3b8" }} className="font-bold tabular-nums">{l.pct.toFixed(1)}%</div>
-            </div>
-          ) : (
-            <div key={rotulo} className="bg-slate-800/40 border border-slate-700 rounded-xl p-3 text-slate-500">
-              <div className="flex items-center gap-1 mb-1"><MapPin size={11} />{rotulo}</div><div>sem dados</div>
-            </div>
-          ),
-        )}
       </div>
     </div>
   );

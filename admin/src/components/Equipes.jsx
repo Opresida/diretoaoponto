@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { UserPlus, Users, Power, ChevronDown, ChevronRight, MapPin } from "lucide-react";
 import { api } from "../lib/api.js";
+import GeoPicker from "./GeoPicker.jsx";
 
 const ROLE_LABEL = {
   admin: "Admin", manager: "Gerente", coordinator: "Coordenador",
@@ -9,17 +10,13 @@ const ROLE_LABEL = {
 
 export default function Equipes() {
   const [users, setUsers] = useState([]);
-  const [strata, setStrata] = useState([]);
   const [mgrForm, setMgrForm] = useState({ name: "", email: "", password: "", stratumId: "" });
   const [entForm, setEntForm] = useState({ name: "", email: "", password: "", managerId: "" });
   const [open, setOpen] = useState({});
   const [msg, setMsg] = useState("");
 
   const load = () => api.listUsers().then((r) => setUsers(r.users)).catch(() => {});
-  useEffect(() => {
-    load();
-    api.listStrata().then((r) => setStrata(r.strata)).catch(() => {});
-  }, []);
+  useEffect(() => { load(); }, []);
 
   const managers = users.filter((u) => u.role === "manager");
   const interviewersOf = (mid) => users.filter((u) => u.role === "interviewer" && u.manager_id === mid);
@@ -66,10 +63,10 @@ export default function Equipes() {
             <input className="input" placeholder="Nome" value={mgrForm.name} onChange={(e) => setMgrForm({ ...mgrForm, name: e.target.value })} required />
             <input className="input" type="email" placeholder="E-mail" autoCapitalize="none" value={mgrForm.email} onChange={(e) => setMgrForm({ ...mgrForm, email: e.target.value })} required />
             <input className="input" type="password" placeholder="Senha (mín. 8)" value={mgrForm.password} onChange={(e) => setMgrForm({ ...mgrForm, password: e.target.value })} minLength={8} required />
-            <select className="input" value={mgrForm.stratumId} onChange={(e) => setMgrForm({ ...mgrForm, stratumId: e.target.value })} required>
-              <option value="">— Zona / município —</option>
-              {strata.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
+            <div>
+              <div className="label mb-1">Zona / município responsável</div>
+              <GeoPicker value={mgrForm.stratumId} onChange={(stratumId) => setMgrForm({ ...mgrForm, stratumId })} />
+            </div>
           </div>
           <button className="btn-primary mt-3"><UserPlus size={15} /> Criar gerente</button>
         </form>
