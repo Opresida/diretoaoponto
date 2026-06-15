@@ -41,6 +41,11 @@ export const api = {
   snapshot: () => req("/apuracao/snapshot"),
   listStrata: () => req("/strata"),
   geo: () => req("/apuracao/geo"),
+  listInterviews: (params = {}) => {
+    const qs = new URLSearchParams(Object.entries(params).filter(([, v]) => v !== "" && v != null));
+    return req(`/interviews?${qs}`);
+  },
+  interviewMedia: (id) => req(`/interviews/${id}/media`),
   governo: ({ recorte = "total", zone, municipality, scenario = "c1" } = {}) => {
     const q = new URLSearchParams({ recorte, scenario });
     if (zone) q.set("zone", zone);
