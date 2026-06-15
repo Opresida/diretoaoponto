@@ -259,6 +259,20 @@ export const auditLog = pgTable("audit_log", {
   at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// ─── invites (F3 — cadastro por link de uso único) ───────────────────
+export const invites = pgTable("invites", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  token: text("token").notNull().unique(),
+  role: userRole("role").notNull(), // manager | interviewer
+  stratumId: uuid("stratum_id").references(() => strata.id),
+  managerId: uuid("manager_id").references(() => users.id),
+  createdBy: uuid("created_by").notNull().references(() => users.id),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  usedAt: timestamp("used_at", { withTimezone: true }),
+  usedBy: uuid("used_by").references(() => users.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 // ─── anchors (§13.1) ─────────────────────────────────────────────────
 export const anchors = pgTable("anchors", {
   id: uuid("id").primaryKey().defaultRandom(),

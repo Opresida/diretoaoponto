@@ -22,6 +22,7 @@ import anchorRoutes from "./routes/anchor.js";
 import candidatesRoutes, { publicCandidatePhotoRouter } from "./routes/candidates.js";
 import strataRoutes from "./routes/strata.js";
 import municipalitiesRoutes from "./routes/municipalities.js";
+import invitesRoutes, { publicInvitesRouter } from "./routes/invites.js";
 
 const app = express();
 app.use(express.json({ limit: "2mb" }));
@@ -32,6 +33,7 @@ app.get("/health", (_req, res) => res.json({ ok: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api/verify", verifyRoutes);
 app.use("/api/candidates", publicCandidatePhotoRouter); // só GET /:id/photo
+app.use("/api/public/invites", publicInvitesRouter); // ler contexto + aceitar
 
 // Protegido
 app.use("/api/field", requireAuth, fieldRoutes);
@@ -46,6 +48,7 @@ app.use("/api/anchor", requireAuth, anchorRoutes);
 app.use("/api/candidates", requireAuth, candidatesRoutes);
 app.use("/api/strata", requireAuth, strataRoutes);
 app.use("/api/municipalities", requireAuth, municipalitiesRoutes);
+app.use("/api/invites", requireAuth, invitesRoutes);
 
 app.use(errorHandler);
 

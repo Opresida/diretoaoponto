@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { sql } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { requireRole, teamScope } from "../middleware/rbac.js";
+import { nextInterviewerCode } from "../services/usersService.js";
 
 const router = Router();
 
@@ -19,11 +20,6 @@ export const CreateUserSchema = z.object({
   stratumId: z.string().uuid().optional(), // zona do gerente
   registrationCode: z.string().optional(),
 });
-
-async function nextInterviewerCode(): Promise<string> {
-  const r = await db.execute(sql`SELECT COUNT(*)::int AS n FROM users WHERE role = 'interviewer'`);
-  return `ENT-${String(Number(r.rows[0]?.n ?? 0) + 1).padStart(4, "0")}`;
-}
 
 // GET /api/users — admin: lista todos os usuários (com gerente e produção).
 router.get("/", requireRole("admin"), async (_req, res, next) => {
@@ -65,7 +61,7 @@ router.post("/", requireRole("manager"), async (req, res, next) => {
     }
 
     const passwordHash = await bcrypt.hash(body.password, 10);
-    const regCode = role === "interviewer" ? body.registrationCode ?? (await nextInterviewerCode()) : body.registrationCode ?? null;
+    const regCode = role === "interviewer" ? body.registrationCode ?? (await nextInterviewerCode(db)) : body.registrationCode ?? null;
 
     const stratumId = role === "manager" ? body.stratumId ?? null : null;
     const r = await db.execute(sql`

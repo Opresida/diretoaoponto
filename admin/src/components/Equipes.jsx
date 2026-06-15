@@ -14,9 +14,20 @@ export default function Equipes() {
   const [entForm, setEntForm] = useState({ name: "", email: "", password: "", managerId: "" });
   const [open, setOpen] = useState({});
   const [msg, setMsg] = useState("");
+  const [linkStratumId, setLinkStratumId] = useState("");
+  const [link, setLink] = useState("");
 
   const load = () => api.listUsers().then((r) => setUsers(r.users)).catch(() => {});
   useEffect(() => { load(); }, []);
+
+  const gerarLinkGerente = async () => {
+    setMsg(""); setLink("");
+    if (!linkStratumId) { setMsg("Selecione a zona/município para o link."); return; }
+    try {
+      const inv = await api.createInvite({ role: "manager", stratumId: linkStratumId });
+      setLink(inv.url);
+    } catch { setMsg("Erro ao gerar link."); }
+  };
 
   const managers = users.filter((u) => u.role === "manager");
   const interviewersOf = (mid) => users.filter((u) => u.role === "interviewer" && u.manager_id === mid);
@@ -87,6 +98,20 @@ export default function Equipes() {
         </form>
       </div>
       {msg && <p className="text-xs text-rose-400">{msg}</p>}
+
+      {/* LINK DE CADASTRO DE GERENTE (uso único) */}
+      <div className="card p-4">
+        <div className="font-semibold text-sm mb-1 flex items-center gap-2"><MapPin size={15} /> Gerar link de cadastro de gerente</div>
+        <p className="text-xs text-slate-500 mb-3">Crie um link de uso único: a pessoa abre, escolhe a senha e vira gerente da zona selecionada.</p>
+        <GeoPicker value={linkStratumId} onChange={setLinkStratumId} />
+        <button onClick={gerarLinkGerente} className="btn-primary mt-3">Gerar link</button>
+        {link && (
+          <div className="mt-3 flex items-center gap-2 bg-surface-2/60 border border-slate-700 rounded-el p-2.5">
+            <input className="input text-xs" readOnly value={link} onFocus={(e) => e.target.select()} />
+            <button onClick={() => navigator.clipboard?.writeText(link)} className="btn-secondary px-3 py-2 text-xs">Copiar</button>
+          </div>
+        )}
+      </div>
 
       {/* GERENTES + EQUIPES */}
       <div className="card p-4">

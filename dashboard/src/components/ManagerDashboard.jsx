@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Crown, AlertTriangle, CheckCircle2, MapPin, Radio, LogOut, Users, WifiOff } from "lucide-react";
 import { api, auth } from "../lib/api.js";
 import CandAvatar from "./CandAvatar.jsx";
+import ManagerEquipe from "./ManagerEquipe.jsx";
 
 const OPCOES = ["Branco/Nulo", "NS/NR"];
 const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
@@ -12,6 +13,7 @@ export default function ManagerDashboard({ user, onLogout }) {
   const [data, setData] = useState(null);
   const [wsOpen, setWsOpen] = useState(false);
   const [photoByName, setPhotoByName] = useState({});
+  const [view, setView] = useState("painel");
   const reloadTimer = useRef(null);
 
   const load = () => api.scoped().then(setData).catch(() => {});
@@ -72,9 +74,18 @@ export default function ManagerDashboard({ user, onLogout }) {
           </div>
           <div className="text-xs text-slate-400 mt-0.5">Minha zona · {user?.name} · parciais não ponderadas</div>
         </div>
-        <button onClick={onLogout} className="text-slate-400 p-2 shrink-0"><LogOut size={18} /></button>
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="flex gap-1 bg-slate-800 rounded-xl p-1">
+            {[["painel", "Painel"], ["equipe", "Equipe"]].map(([v, l]) => (
+              <button key={v} onClick={() => setView(v)}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${view === v ? "bg-emerald-600 text-white" : "text-slate-400"}`}>{l}</button>
+            ))}
+          </div>
+          <button onClick={onLogout} className="text-slate-400 p-2"><LogOut size={18} /></button>
+        </div>
       </header>
 
+      {view === "equipe" ? <ManagerEquipe /> : (<>
       {/* PROGRESSO DA ZONA */}
       <div className="min-w-0 bg-gradient-to-br from-emerald-900/40 to-slate-900 border border-emerald-700/60 rounded-2xl p-4 mb-4">
         <div className="flex items-center justify-between mb-2">
@@ -171,6 +182,7 @@ export default function ManagerDashboard({ user, onLogout }) {
       </div>
 
       <div className="text-center text-xs text-slate-600 mt-4">⚠ Parcial não ponderada · uso interno · somente a sua zona.</div>
+      </>)}
     </div>
   );
 }

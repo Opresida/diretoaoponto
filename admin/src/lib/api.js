@@ -32,6 +32,7 @@ export const api = {
   listUsers: () => req("/users"),
   createUser: (u) => req("/users", { method: "POST", body: u }),
   setActive: (id, active) => req(`/users/${id}/active`, { method: "PATCH", body: { active } }),
+  createInvite: (body) => req("/invites", { method: "POST", body }),
   // Municípios
   listMunicipalities: () => req("/municipalities"),
   updateMunicipality: (id, body) => req(`/municipalities/${id}`, { method: "PATCH", body }),

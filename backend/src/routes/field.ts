@@ -32,17 +32,24 @@ router.get("/package", requireAnyRole("interviewer"), async (req, res, next) => 
       return;
     }
 
-    // Estrato designado hoje (assignment). Sem assignment → todos do projeto.
+    // Escopo do pacote: 1) assignment do dia; 2) zona do gerente do entrevistador;
+    // 3) fallback = todos os estratos do projeto (entrevistador sem gerente/zona).
     const assigned = await db.execute(sql`
       SELECT s.id FROM assignments a
       JOIN strata s ON s.id = a.stratum_id
       WHERE a.interviewer_id = ${me.id} AND a.date = now()::date`);
-    const assignedIds = assigned.rows.map((r) => r.id as string);
+    let scopeIds = assigned.rows.map((r) => r.id as string);
+    if (!scopeIds.length) {
+      const mz = await db.execute(sql`
+        SELECT m.stratum_id FROM users u JOIN users m ON m.id = u.manager_id WHERE u.id = ${me.id} LIMIT 1`);
+      const mgrStratum = mz.rows[0]?.stratum_id as string | undefined;
+      if (mgrStratum) scopeIds = [mgrStratum];
+    }
 
     const strataRows = await db.execute(
-      assignedIds.length
+      scopeIds.length
         ? sql`SELECT id, name, region, zone, municipality, target, census_polygon
-              FROM strata WHERE id IN (${sql.join(assignedIds.map((id) => sql`${id}`), sql`, `)}) ORDER BY name`
+              FROM strata WHERE id IN (${sql.join(scopeIds.map((id) => sql`${id}`), sql`, `)}) ORDER BY name`
         : sql`SELECT id, name, region, zone, municipality, target, census_polygon
               FROM strata WHERE project_id = ${project.id} ORDER BY region, name`,
     );
@@ -85,7 +92,7 @@ router.get("/package", requireAnyRole("interviewer"), async (req, res, next) => 
 
     res.json({
       project,
-      assigned: assignedIds.length > 0,
+      assigned: assigned.rows.length > 0,
       strata,
       candidates,
       questionnaire: QUESTIONNAIRE,

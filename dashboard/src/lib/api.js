@@ -26,6 +26,10 @@ export const api = {
   resumo: () => req("/apuracao/resumo"),
   scoped: () => req("/apuracao/scoped"),
   listCandidates: () => req("/candidates"),
+  team: () => req("/team"),
+  createUser: (u) => req("/users", { method: "POST", body: u }),
+  setActive: (id, active) => req(`/users/${id}/active`, { method: "PATCH", body: { active } }),
+  createInvite: (body = {}) => req("/invites", { method: "POST", body }),
   geo: () => req("/apuracao/geo"),
   governo: ({ recorte = "total", zone, municipality, scenario = "c1" } = {}) => {
     const q = new URLSearchParams({ recorte, scenario });
