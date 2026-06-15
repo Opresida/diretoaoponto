@@ -66,7 +66,7 @@ export default function Dashboard({ user, onLogout }) {
   const linhas = candidatosGov.slice(0, 4);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-3 sm:p-4 max-w-7xl mx-auto">
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-3 sm:p-4 max-w-7xl mx-auto overflow-x-hidden">
       {/* HEADER */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div className="min-w-0">
@@ -95,7 +95,7 @@ export default function Dashboard({ user, onLogout }) {
 
       {/* PLACAR LÍDER */}
       <div className="grid sm:grid-cols-3 gap-3 mb-4">
-        <div className="sm:col-span-2 bg-gradient-to-br from-emerald-900/40 to-slate-900 border border-emerald-700/60 rounded-2xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+        <div className="sm:col-span-2 min-w-0 bg-gradient-to-br from-emerald-900/40 to-slate-900 border border-emerald-700/60 rounded-2xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
           <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-emerald-500/20 border border-emerald-600 flex items-center justify-center shrink-0">
             <Crown className="text-emerald-300 w-6 h-6 sm:w-[26px] sm:h-[26px]" />
           </div>
@@ -112,7 +112,7 @@ export default function Dashboard({ user, onLogout }) {
             <div className="text-[10px] sm:text-xs text-slate-400">{lider?.votes ?? 0} votos</div>
           </div>
         </div>
-        <div className={`rounded-2xl p-4 border flex flex-col justify-center ${empate ? "bg-amber-900/20 border-amber-700" : "bg-slate-900 border-slate-800"}`}>
+        <div className={`min-w-0 rounded-2xl p-4 border flex flex-col justify-center ${empate ? "bg-amber-900/20 border-amber-700" : "bg-slate-900 border-slate-800"}`}>
           {empate ? (
             <>
               <div className="flex items-center gap-2 text-amber-300 text-xs font-semibold"><AlertTriangle size={14} />EMPATE TÉCNICO</div>
@@ -132,7 +132,7 @@ export default function Dashboard({ user, onLogout }) {
         <RecorteRegional governo={snapshot.governo} />
 
         {/* RANKING SENADO */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+        <div className="min-w-0 bg-slate-900 border border-slate-800 rounded-2xl p-4">
           <div className="font-semibold text-sm mb-3">Senado · 2 vagas <span className="text-slate-500 font-normal">(consolidado 1º+2º)</span></div>
           <div className="space-y-3">
             {senTotal.length === 0 && <div className="text-xs text-slate-500">Sem votos ainda.</div>}
@@ -158,7 +158,7 @@ export default function Dashboard({ user, onLogout }) {
         </div>
 
         {/* FEED */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+        <div className="min-w-0 bg-slate-900 border border-slate-800 rounded-2xl p-4">
           <div className="flex items-center gap-2 font-semibold text-sm mb-3"><Radio size={15} className="text-emerald-400" /> Entrevistas finalizadas</div>
           <div className="space-y-2">
             {feed.length === 0 && <div className="text-xs text-slate-500">Aguardando campo…</div>}
@@ -178,7 +178,7 @@ export default function Dashboard({ user, onLogout }) {
         </div>
 
         {/* EVOLUÇÃO DOS LÍDERES */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 lg:col-span-2">
+        <div className="min-w-0 bg-slate-900 border border-slate-800 rounded-2xl p-4 lg:col-span-2">
           <div className="font-semibold text-sm mb-2">Evolução da parcial — Governo</div>
           {serie.length < 2 ? (
             <div className="h-[190px] flex items-center justify-center text-xs text-slate-500">Coletando pontos da série… (atualiza a cada entrevista)</div>
@@ -205,7 +205,7 @@ export default function Dashboard({ user, onLogout }) {
         </div>
 
         {/* PROGRESSO + FLAGS */}
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
             <div className="font-semibold text-sm mb-3">Progresso da amostra</div>
             {[["Manaus (6 zonas)", progress.manaus], ["Interior (14 municípios)", progress.interior]].map(([nome, e]) => (

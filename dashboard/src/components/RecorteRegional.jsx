@@ -14,13 +14,13 @@ export default function RecorteRegional({ governo }) {
   const liderI = governo?.interior?.filter((c) => !OPCOES.includes(c.name))[0];
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-      <div className="flex items-center justify-between mb-3">
+    <div className="min-w-0 bg-slate-900 border border-slate-800 rounded-2xl p-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-3">
         <span className="font-semibold text-sm">Governo · Recorte regional</span>
-        <div className="flex gap-1 bg-slate-800 rounded-xl p-1">
+        <div className="flex gap-1 bg-slate-800 rounded-xl p-1 self-start sm:self-auto">
           {abas.map(([v, l]) => (
             <button key={v} onClick={() => setRecorte(v)}
-              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${recorte === v ? "bg-emerald-600 text-white" : "text-slate-400"}`}>{l}</button>
+              className={`flex-1 sm:flex-none px-2.5 py-1 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${recorte === v ? "bg-emerald-600 text-white" : "text-slate-400"}`}>{l}</button>
           ))}
         </div>
       </div>
