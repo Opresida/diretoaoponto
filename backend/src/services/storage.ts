@@ -39,6 +39,11 @@ export function buildStorageKey(
     : `${interviewClientUuid}/audio.webm`;
 }
 
+/** Key da foto de um candidato. */
+export function buildCandidateKey(candidateId: string): string {
+  return `candidates/${candidateId}.jpg`;
+}
+
 /** Baixa um objeto do bucket como Buffer (usado pelos jobs de pós-processamento). */
 export async function getObject(key: string): Promise<Buffer> {
   const r = await s3.send(new GetObjectCommand({ Bucket: BUCKET, Key: key }));

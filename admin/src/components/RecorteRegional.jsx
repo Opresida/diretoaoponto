@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import { Crown, MapPin } from "lucide-react";
 import { api } from "../lib/api.js";
+import CandAvatar from "./CandAvatar.jsx";
 
 const OPCOES = ["Branco/Nulo", "NS/NR"];
 
-export default function RecorteRegional({ governo, wsTick = 0 }) {
+export default function RecorteRegional({ governo, wsTick = 0, photoByName = {} }) {
   const [geo, setGeo] = useState({ manaus: [], interior: [] });
   const [tab, setTab] = useState("manaus");
   const [sel, setSel] = useState(null); // {zone} | {municipality} | null (Todos)
@@ -67,7 +68,8 @@ export default function RecorteRegional({ governo, wsTick = 0 }) {
             <div key={c.name}>
               <div className="flex justify-between text-xs mb-1">
                 <span className="flex items-center gap-1.5 min-w-0">
-                  <span className={`w-5 font-bold ${i === 0 && isCand ? "text-emerald-300" : "text-slate-500"}`}>{isCand ? `${i + 1}º` : "—"}</span>
+                  <span className={`w-4 font-bold ${i === 0 && isCand ? "text-emerald-300" : "text-slate-500"}`}>{isCand ? `${i + 1}º` : "—"}</span>
+                  {isCand && <CandAvatar photo={photoByName[c.name]} color={c.color} size={20} />}
                   <span className={`truncate ${i === 0 && isCand ? "text-emerald-200 font-semibold" : "text-slate-300"}`}>{c.name}</span>
                   {i === 0 && isCand && <Crown size={12} className="text-emerald-300 shrink-0" />}
                 </span>

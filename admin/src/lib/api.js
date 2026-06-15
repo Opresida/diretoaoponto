@@ -27,6 +27,7 @@ export const api = {
   createCandidate: (c) => req("/candidates", { method: "POST", body: c }),
   updateCandidate: (id, c) => req(`/candidates/${id}`, { method: "PATCH", body: c }),
   deleteCandidate: (id) => req(`/candidates/${id}`, { method: "DELETE" }),
+  presignCandidate: (candidateId) => req("/uploads/presign", { method: "POST", body: { kind: "candidate", candidateId } }),
   // Usuários / equipes
   listUsers: () => req("/users"),
   createUser: (u) => req("/users", { method: "POST", body: u }),

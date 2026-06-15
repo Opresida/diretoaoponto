@@ -67,14 +67,18 @@ router.get("/package", requireAnyRole("interviewer"), async (req, res, next) => 
       quotas: quotaRows.filter((q) => q.stratum_id === s.id),
     }));
 
-    // Candidatos p/ rotação, agrupados por cargo.
-    const cands = await db.execute(sql`SELECT name, party, office, color FROM candidates ORDER BY office, name`);
+    // Candidatos p/ rotação, agrupados por cargo (com foto quando houver).
+    const cands = await db.execute(sql`
+      SELECT id, name, party, office, color,
+             (photo_key IS NOT NULL OR photo_url IS NOT NULL) AS has_photo
+      FROM candidates ORDER BY office, name`);
     const candidates: Record<string, unknown[]> = {};
     for (const c of cands.rows) {
       (candidates[c.office as string] ??= []).push({
         name: c.name,
         party: c.party,
         color: c.color,
+        photo: c.has_photo ? `/api/candidates/${c.id}/photo` : null,
         isOption: ["Branco/Nulo", "NS/NR"].includes(c.name as string),
       });
     }

@@ -1,9 +1,11 @@
 // Gestão de candidatos — tela do Admin. Listagem p/ coordinator+, mutações admin.
+// Foto (F2): photo_key (R2) ou photo_url (externa); servida por /:id/photo (público).
 import { Router } from "express";
 import { z } from "zod";
 import { sql } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { requireRole } from "../middleware/rbac.js";
+import { presignGet } from "../services/storage.js";
 
 const router = Router();
 
@@ -12,16 +14,23 @@ const CandidateSchema = z.object({
   party: z.string().nullable().optional(),
   office: z.string().min(1), // governor | senator | president | ...
   color: z.string().regex(/^#[0-9a-fA-F]{6}$/).nullable().optional(),
+  photoKey: z.string().nullable().optional(),
+  photoUrl: z.string().url().nullable().optional(),
 });
 
-// GET /api/candidates — lista (com nº de votos), coordinator+.
+// GET /api/candidates — lista (com nº de votos + flag de foto), coordinator+.
 router.get("/", requireRole("coordinator"), async (_req, res, next) => {
   try {
     const r = await db.execute(sql`
       SELECT c.id, c.name, c.party, c.office, c.color,
+             (c.photo_key IS NOT NULL OR c.photo_url IS NOT NULL) AS has_photo,
              (SELECT COUNT(*) FROM answers a WHERE a.candidate_id = c.id)::int AS votos
       FROM candidates c ORDER BY c.office, c.name`);
-    res.json({ candidates: r.rows });
+    const candidates = r.rows.map((c) => ({
+      ...c,
+      photo: c.has_photo ? `/api/candidates/${c.id}/photo` : null,
+    }));
+    res.json({ candidates });
   } catch (e) { next(e); }
 });
 
@@ -30,8 +39,8 @@ router.post("/", requireRole("admin"), async (req, res, next) => {
   try {
     const b = CandidateSchema.parse(req.body);
     const r = await db.execute(sql`
-      INSERT INTO candidates (name, party, office, color)
-      VALUES (${b.name}, ${b.party ?? null}, ${b.office}, ${b.color ?? null})
+      INSERT INTO candidates (name, party, office, color, photo_key, photo_url)
+      VALUES (${b.name}, ${b.party ?? null}, ${b.office}, ${b.color ?? null}, ${b.photoKey ?? null}, ${b.photoUrl ?? null})
       RETURNING id, name, party, office, color`);
     res.status(201).json(r.rows[0]);
   } catch (e: any) {
@@ -49,7 +58,9 @@ router.patch("/:id", requireRole("admin"), async (req, res, next) => {
         name = COALESCE(${b.name ?? null}, name),
         party = ${b.party === undefined ? sql`party` : b.party},
         office = COALESCE(${b.office ?? null}, office),
-        color = ${b.color === undefined ? sql`color` : b.color}
+        color = ${b.color === undefined ? sql`color` : b.color},
+        photo_key = ${b.photoKey === undefined ? sql`photo_key` : b.photoKey},
+        photo_url = ${b.photoUrl === undefined ? sql`photo_url` : b.photoUrl}
       WHERE id = ${req.params.id}
       RETURNING id, name, party, office, color`);
     if (!r.rows.length) { res.status(404).json({ error: "not_found" }); return; }
@@ -75,3 +86,21 @@ router.delete("/:id", requireRole("admin"), async (req, res, next) => {
 });
 
 export default router;
+
+// ─── Rota PÚBLICA da foto (montar antes do requireAuth) ──────────────
+// GET /api/candidates/:id/photo → 302 p/ presigned GET (R2) ou URL externa.
+export const publicCandidatePhotoRouter = Router();
+publicCandidatePhotoRouter.get("/:id/photo", async (req, res, next) => {
+  try {
+    const r = await db.execute(sql`SELECT photo_key, photo_url FROM candidates WHERE id = ${req.params.id} LIMIT 1`);
+    const c = r.rows[0] as { photo_key: string | null; photo_url: string | null } | undefined;
+    if (!c) { res.status(404).end(); return; }
+    res.setHeader("Cache-Control", "private, max-age=300");
+    if (c.photo_key && process.env.S3_ACCESS_KEY) {
+      res.redirect(302, await presignGet(c.photo_key, 600));
+      return;
+    }
+    if (c.photo_url) { res.redirect(302, c.photo_url); return; }
+    res.status(404).end();
+  } catch (e) { next(e); }
+});

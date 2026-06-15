@@ -5,6 +5,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { Crown, AlertTriangle, CheckCircle2, MapPin, Pause, Play, Radio } from "lucide-react";
 import { api, auth } from "../lib/api.js";
 import RecorteRegional from "./RecorteRegional.jsx";
+import CandAvatar from "./CandAvatar.jsx";
 
 const OPCOES = ["Branco/Nulo", "NS/NR"];
 const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
@@ -17,10 +18,18 @@ export default function ApuracaoEmbed() {
   const [aoVivo, setAoVivo] = useState(true);
   const [wsOpen, setWsOpen] = useState(false);
   const [wsTick, setWsTick] = useState(0);
+  const [photoByName, setPhotoByName] = useState({});
   const aoVivoRef = useRef(true);
   aoVivoRef.current = aoVivo;
 
-  useEffect(() => { api.snapshot().then(setSnapshot).catch(() => {}); }, []);
+  useEffect(() => {
+    api.snapshot().then(setSnapshot).catch(() => {});
+    api.listCandidates().then((r) => {
+      const map = {};
+      for (const c of r.candidates) if (c.photo) map[c.name] = c.photo;
+      setPhotoByName(map);
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     const proto = location.protocol === "https:" ? "wss" : "ws";
@@ -86,7 +95,7 @@ export default function ApuracaoEmbed() {
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
-        <RecorteRegional governo={snapshot.governo} wsTick={wsTick} />
+        <RecorteRegional governo={snapshot.governo} wsTick={wsTick} photoByName={photoByName} />
 
         {/* SENADO */}
         <div className="min-w-0 bg-slate-900 border border-slate-800 rounded-2xl p-4">
@@ -98,7 +107,7 @@ export default function ApuracaoEmbed() {
               return (
                 <div key={c.name}>
                   <div className="flex justify-between text-xs mb-1">
-                    <span className="flex items-center gap-1.5 min-w-0"><span className={`w-5 font-bold ${eleito ? "text-emerald-300" : "text-slate-500"}`}>{i + 1}º</span><span className="truncate text-slate-300">{c.name}</span>{eleito && <span className="text-[10px] px-1 rounded bg-emerald-900/50 border border-emerald-700 text-emerald-300 shrink-0">VAGA</span>}</span>
+                    <span className="flex items-center gap-1.5 min-w-0"><span className={`w-4 font-bold ${eleito ? "text-emerald-300" : "text-slate-500"}`}>{i + 1}º</span>{!OPCOES.includes(c.name) && <CandAvatar photo={photoByName[c.name]} color={c.color} size={20} />}<span className="truncate text-slate-300">{c.name}</span>{eleito && <span className="text-[10px] px-1 rounded bg-emerald-900/50 border border-emerald-700 text-emerald-300 shrink-0">VAGA</span>}</span>
                     <span className="tabular-nums font-bold shrink-0" style={{ color: c.color || "#94a3b8" }}>{c.pct.toFixed(1)}%</span>
                   </div>
                   <div className="h-2 bg-slate-800 rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${Math.min(c.pct * 2, 100)}%`, background: c.color || "#64748b" }} /></div>

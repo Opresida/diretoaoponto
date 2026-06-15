@@ -1,6 +1,19 @@
 // Questionário em PASSOS (wizard) com rotação de candidatos — PROMPT §1/§5.
 import { useMemo, useState } from "react";
-import { CheckCircle2, ArrowRight, ArrowLeft } from "lucide-react";
+import { CheckCircle2, ArrowRight, ArrowLeft, User } from "lucide-react";
+
+// Avatar do candidato (foto p/ o entrevistado associar nome×rosto, §F2).
+function CandAvatar({ c }) {
+  const [err, setErr] = useState(false);
+  if (c.photo && !err) {
+    return <img src={c.photo} alt="" onError={() => setErr(true)} className="w-9 h-9 rounded-full object-cover shrink-0 border border-slate-600" />;
+  }
+  return (
+    <span className="w-9 h-9 rounded-full shrink-0 flex items-center justify-center border border-slate-700" style={{ background: (c.color || "#334155") + "33" }}>
+      <User size={16} style={{ color: c.color || "#64748b" }} />
+    </span>
+  );
+}
 
 function shuffle(arr) {
   const a = [...arr];
@@ -90,9 +103,9 @@ export default function Questionario({ pkg, onDone, onCancel }) {
           <div className="space-y-2">
             {(ordered[q.code] ?? []).map((c) => (
               <button key={c.name} onClick={() => set(q.code, c.name)}
-                className={`w-full flex items-center gap-2 p-3 rounded-el text-sm text-left border ${
+                className={`w-full flex items-center gap-2.5 p-2.5 rounded-el text-sm text-left border ${
                   val === c.name ? "border-primary bg-emerald-900/20 text-emerald-200" : "border-slate-700 text-slate-300"}`}>
-                <span className="w-3 h-3 rounded-full shrink-0" style={{ background: c.color || "#64748b" }} />
+                <CandAvatar c={c} />
                 {c.name}
                 {val === c.name && <CheckCircle2 size={16} className="ml-auto text-primary-light" />}
               </button>
@@ -106,9 +119,9 @@ export default function Questionario({ pkg, onDone, onCancel }) {
               const on = (val ?? []).includes(c.name);
               return (
                 <button key={c.name} onClick={() => toggleMulti(q.code, c.name)}
-                  className={`w-full flex items-center gap-2 p-3 rounded-el text-sm text-left border ${
+                  className={`w-full flex items-center gap-2.5 p-2.5 rounded-el text-sm text-left border ${
                     on ? "border-rose-500 bg-rose-900/20 text-rose-200" : "border-slate-700 text-slate-300"}`}>
-                  <span className="w-3 h-3 rounded-full shrink-0" style={{ background: c.color || "#64748b" }} />
+                  <CandAvatar c={c} />
                   {c.name}
                   {on && <CheckCircle2 size={16} className="ml-auto text-rose-300" />}
                 </button>

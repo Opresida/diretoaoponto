@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Crown, AlertTriangle, CheckCircle2, MapPin, Radio, LogOut, Users, WifiOff } from "lucide-react";
 import { api, auth } from "../lib/api.js";
+import CandAvatar from "./CandAvatar.jsx";
 
 const OPCOES = ["Branco/Nulo", "NS/NR"];
 const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
@@ -10,10 +11,18 @@ const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 
 export default function ManagerDashboard({ user, onLogout }) {
   const [data, setData] = useState(null);
   const [wsOpen, setWsOpen] = useState(false);
+  const [photoByName, setPhotoByName] = useState({});
   const reloadTimer = useRef(null);
 
   const load = () => api.scoped().then(setData).catch(() => {});
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    api.listCandidates().then((r) => {
+      const map = {};
+      for (const c of r.candidates) if (c.photo) map[c.name] = c.photo;
+      setPhotoByName(map);
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     const proto = location.protocol === "https:" ? "wss" : "ws";
@@ -90,7 +99,8 @@ export default function ManagerDashboard({ user, onLogout }) {
                 <div key={c.name}>
                   <div className="flex justify-between text-xs mb-1">
                     <span className="flex items-center gap-1.5 min-w-0">
-                      <span className={`w-5 font-bold ${i === 0 && isCand ? "text-emerald-300" : "text-slate-500"}`}>{isCand ? `${i + 1}º` : "—"}</span>
+                      <span className={`w-4 font-bold ${i === 0 && isCand ? "text-emerald-300" : "text-slate-500"}`}>{isCand ? `${i + 1}º` : "—"}</span>
+                      {isCand && <CandAvatar photo={photoByName[c.name]} color={c.color} size={20} />}
                       <span className={`truncate ${i === 0 && isCand ? "text-emerald-200 font-semibold" : "text-slate-300"}`}>{c.name}</span>
                       {i === 0 && isCand && <Crown size={12} className="text-emerald-300 shrink-0" />}
                     </span>
@@ -113,7 +123,7 @@ export default function ManagerDashboard({ user, onLogout }) {
             {senado.map((c, i) => (
               <div key={c.name}>
                 <div className="flex justify-between text-xs mb-1">
-                  <span className="flex items-center gap-1.5 min-w-0"><span className="w-5 font-bold text-slate-500">{i + 1}º</span><span className="truncate text-slate-300">{c.name}</span></span>
+                  <span className="flex items-center gap-1.5 min-w-0"><span className="w-4 font-bold text-slate-500">{i + 1}º</span>{!OPCOES.includes(c.name) && <CandAvatar photo={photoByName[c.name]} color={c.color} size={20} />}<span className="truncate text-slate-300">{c.name}</span></span>
                   <span className="tabular-nums font-bold shrink-0" style={{ color: c.color || "#94a3b8" }}>{c.pct.toFixed(1)}%</span>
                 </div>
                 <div className="h-2 bg-slate-800 rounded-full overflow-hidden">

@@ -19,7 +19,7 @@ import interviewsRoutes from "./routes/interviews.js";
 import verifyRoutes from "./routes/verify.js";
 import usersRoutes, { teamRouter } from "./routes/users.js";
 import anchorRoutes from "./routes/anchor.js";
-import candidatesRoutes from "./routes/candidates.js";
+import candidatesRoutes, { publicCandidatePhotoRouter } from "./routes/candidates.js";
 import strataRoutes from "./routes/strata.js";
 import municipalitiesRoutes from "./routes/municipalities.js";
 
@@ -31,6 +31,7 @@ app.get("/health", (_req, res) => res.json({ ok: true }));
 // Público (sem auth)
 app.use("/api/auth", authRoutes);
 app.use("/api/verify", verifyRoutes);
+app.use("/api/candidates", publicCandidatePhotoRouter); // só GET /:id/photo
 
 // Protegido
 app.use("/api/field", requireAuth, fieldRoutes);

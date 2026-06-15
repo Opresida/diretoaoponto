@@ -153,6 +153,8 @@ export const candidates = pgTable(
     party: text("party"),
     office: text("office").notNull(), // 'governor' | 'senator' | 'president' | ...
     color: text("color"), // hex p/ dashboard
+    photoKey: text("photo_key"), // R2: candidates/{id}.jpg
+    photoUrl: text("photo_url"), // URL externa
   },
   (t) => ({
     uq: unique("candidates_name_office_uq").on(t.name, t.office),
