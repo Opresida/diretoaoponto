@@ -23,6 +23,7 @@ import candidatesRoutes, { publicCandidatePhotoRouter } from "./routes/candidate
 import strataRoutes from "./routes/strata.js";
 import municipalitiesRoutes from "./routes/municipalities.js";
 import invitesRoutes, { publicInvitesRouter } from "./routes/invites.js";
+import reportsRoutes from "./routes/reports.js";
 
 const app = express();
 app.use(express.json({ limit: "2mb" }));
@@ -49,6 +50,7 @@ app.use("/api/candidates", requireAuth, candidatesRoutes);
 app.use("/api/strata", requireAuth, strataRoutes);
 app.use("/api/municipalities", requireAuth, municipalitiesRoutes);
 app.use("/api/invites", requireAuth, invitesRoutes);
+app.use("/api/reports", requireAuth, reportsRoutes);
 
 app.use(errorHandler);
 

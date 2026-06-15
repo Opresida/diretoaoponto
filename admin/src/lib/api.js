@@ -46,6 +46,20 @@ export const api = {
     return req(`/interviews?${qs}`);
   },
   interviewMedia: (id) => req(`/interviews/${id}/media`),
+  // Relatórios selados
+  listReports: () => req("/reports"),
+  generateReport: () => req("/reports", { method: "POST" }),
+  reportVerifyUrl: (code) => `${location.origin.replace(/:\d+$/, ":5174")}/r/${code}`,
+  downloadReportPdf: async (id, code) => {
+    const r = await fetch(`/api/reports/${id}/pdf`, { headers: auth.token ? { Authorization: `Bearer ${auth.token}` } : {} });
+    if (!r.ok) throw new Error("pdf_failed");
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = `${code}.pdf`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  },
   governo: ({ recorte = "total", zone, municipality, scenario = "c1" } = {}) => {
     const q = new URLSearchParams({ recorte, scenario });
     if (zone) q.set("zone", zone);

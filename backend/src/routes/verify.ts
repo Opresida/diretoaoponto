@@ -123,6 +123,66 @@ async function buildVerifyResponse(it: InterviewRow | null) {
   };
 }
 
+// ─── Verificação de RELATÓRIO selado (§13) ───────────────────────────
+import { sha256Hex } from "../services/hash.js";
+import { canonicalize } from "json-canonicalize";
+
+async function buildReportVerify(code: string) {
+  const r = await db.execute(sql`
+    SELECT code, content_hash, payload, status, chain, tx_hash, block_number,
+           anchored_at, generated_at
+    FROM reports WHERE code = ${code} LIMIT 1`);
+  const rep = r.rows[0] as
+    | { code: string; content_hash: string; payload: any; status: string; chain: string | null;
+        tx_hash: string | null; block_number: number | null; anchored_at: string | null; generated_at: string }
+    | undefined;
+  if (!rep) return { status: "not_found" as const };
+
+  // Recomputa o hash do payload congelado e confere contra o que foi selado.
+  const { code: _c, ...sealable } = rep.payload ?? {};
+  const recomputed = sha256Hex(canonicalize(sealable) + (process.env.HASH_SALT ?? ""));
+  const contentOk = recomputed === rep.content_hash;
+
+  const summary = {
+    instituto: rep.payload?.ficha?.instituto ?? null,
+    pesquisa: rep.payload?.ficha?.pesquisa ?? null,
+    amostra: rep.payload?.ficha?.amostraColetada ?? null,
+    margemErro: rep.payload?.ficha?.margemErro ?? null,
+    entrevistas: rep.payload?.entrevistas?.length ?? 0,
+  };
+
+  if (!contentOk) {
+    return { status: "integrity_failed" as const, code: rep.code, generatedAt: rep.generated_at, summary };
+  }
+  if (rep.status !== "anchored" || !rep.tx_hash) {
+    return { status: "pending_anchor" as const, code: rep.code, generatedAt: rep.generated_at, summary };
+  }
+  return {
+    status: "sealed_valid" as const,
+    code: rep.code,
+    generatedAt: rep.generated_at,
+    anchoredAt: rep.anchored_at,
+    txHash: rep.tx_hash,
+    blockNumber: rep.block_number,
+    explorerUrl: explorerUrl(rep.chain ?? "base", rep.tx_hash),
+    summary,
+    technical: {
+      contentHash: rep.content_hash,
+      chain: rep.chain,
+      contract: process.env.ANCHOR_CONTRACT_ADDRESS ?? null,
+    },
+  };
+}
+
+// GET /api/verify/report/:code — verificação pública de relatório selado.
+router.get("/report/:code", async (req, res, next) => {
+  try {
+    const ip = req.ip ?? "unknown";
+    if (rateLimited(ip)) { res.status(429).json({ error: "rate_limited" }); return; }
+    res.json(await buildReportVerify(req.params.code));
+  } catch (e) { next(e); }
+});
+
 // GET /api/verify/id/:interviewId — modo auditor por id (§13.4).
 router.get("/id/:interviewId", async (req, res, next) => {
   try {

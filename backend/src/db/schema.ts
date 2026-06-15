@@ -287,3 +287,23 @@ export const anchors = pgTable("anchors", {
   status: text("status").notNull().default("pending"), // pending | confirmed | failed
   anchoredAt: timestamp("anchored_at", { withTimezone: true }),
 });
+
+// ─── reports (relatório selado: papel timbrado + QR + ancoragem na Base) ──
+// Cada relatório congela os números num snapshot (payload), calcula um
+// content_hash e ancora esse hash na Base. O QR do PDF aponta ao portal
+// /r/:code, que recomputa o hash do payload e confere contra a âncora on-chain.
+export const reports = pgTable("reports", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  projectId: uuid("project_id").notNull().references(() => projects.id),
+  code: text("code").notNull().unique(), // REL-2026-XXXX
+  contentHash: text("content_hash").notNull(),
+  payload: jsonb("payload").notNull(), // snapshot congelado (ficha + resultados + lista)
+  pdfKey: text("pdf_key"), // R2: bytes exatos do PDF gerado
+  generatedBy: uuid("generated_by").notNull().references(() => users.id),
+  generatedAt: timestamp("generated_at", { withTimezone: true }).notNull().defaultNow(),
+  chain: text("chain"),
+  txHash: text("tx_hash"),
+  blockNumber: bigserial("block_number", { mode: "number" }),
+  anchoredAt: timestamp("anchored_at", { withTimezone: true }),
+  status: text("status").notNull().default("anchoring"), // anchoring | anchored | local | failed
+});

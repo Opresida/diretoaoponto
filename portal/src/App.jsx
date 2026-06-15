@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { ShieldCheck, Search } from "lucide-react";
 import Verificar from "./Verificar.jsx";
+import VerificarRelatorio from "./VerificarRelatorio.jsx";
 import Cadastro from "./Cadastro.jsx";
 
 export default function App() {
   const v = window.location.pathname.match(/^\/v\/(.+)$/);
   if (v) return <Verificar code={decodeURIComponent(v[1])} />;
+  const rep = window.location.pathname.match(/^\/r\/(.+)$/);
+  if (rep) return <VerificarRelatorio code={decodeURIComponent(rep[1])} />;
   const c = window.location.pathname.match(/^\/cadastro\/(.+)$/);
   if (c) return <Cadastro token={decodeURIComponent(c[1])} />;
 
