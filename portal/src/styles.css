@@ -1,0 +1,64 @@
+/* Design system unificado — PROMPT §14.5 (fonte única de verdade visual). */
+:root {
+  --bg: #020617;
+  --surface: #0f172a;
+  --surface-2: #1e293b;
+  --border: #1e293b;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --primary: #10b981;
+  --primary-2: #34d399;
+  --warn: #fbbf24;
+  --danger: #fb7185;
+  --radius: 16px;
+  --radius-lg: 20px;
+  --font: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, "JetBrains Mono", monospace;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); }
+
+.page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+
+.btn-primary, .btn-secondary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 12px 16px; border-radius: var(--radius);
+  font-size: 13px; font-weight: 600; transition: filter .15s; cursor: pointer; border: none; text-decoration: none;
+}
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid #334155; }
+.btn-primary:hover, .btn-secondary:hover { filter: brightness(1.12); }
+
+.input {
+  width: 100%; padding: 12px; border-radius: var(--radius);
+  background: var(--surface-2); border: 1px solid #334155; color: var(--text);
+  font-size: 15px; font-family: var(--font-mono); letter-spacing: 1px; text-align: center;
+}
+.input:focus { outline: 2px solid var(--primary); }
+
+.check-row {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 12px; border-radius: var(--radius); font-size: 14px; margin-bottom: 8px;
+}
+.check-ok { background: rgba(16,185,129,.10); border: 1px solid rgba(16,185,129,.45); color: #d1fae5; }
+.check-ok svg { color: var(--primary-2); flex-shrink: 0; margin-top: 1px; }
+.check-pending { background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.35); color: #fde68a; }
+.check-pending svg { color: var(--warn); flex-shrink: 0; margin-top: 1px; }
+
+.alert-fail {
+  background: rgba(251,113,133,.10); border: 1px solid rgba(251,113,133,.5);
+  color: #fecdd3; border-radius: var(--radius); padding: 14px; font-size: 14px; line-height: 1.5;
+}
+
+.tec-toggle { display: flex; align-items: center; gap: 4px; margin: 14px auto 0; font-size: 12px; color: var(--muted); background: none; border: none; cursor: pointer; }
+.tec-toggle svg { transition: transform .2s; }
+.tec-box {
+  margin-top: 10px; padding: 12px; border-radius: var(--radius);
+  background: #020617; border: 1px solid var(--border);
+  font-family: var(--font-mono); font-size: 11px; color: var(--primary-2);
+  overflow-x: auto; max-height: 260px;
+}
+.rotate-180 { transform: rotate(180deg); }

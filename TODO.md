@@ -63,8 +63,12 @@ Legenda: ✅ feito · 🟡 stub/parcial · ⬜ não iniciado. Refs = seção do 
 ## Seed
 - 🟡 `seed.ts` — esqueleto; falta inserir projeto/estratos/cotas/candidatos/hierarquia (§10, §12)
 
-## Frontend (especificado, fora deste scaffold)
-- ⬜ `RecorteRegional.jsx` (§7) · `CapturaFotos.jsx` (§8) · `ReciboEntrevista.jsx` (§14.3) · `Verificar.jsx` (§14.4) · design tokens (§14.5)
+## Frontend
+- ✅ **App de Campo (PWA)** em `/frontend` (Vite+React+Tailwind, design tokens §14.5) — login → triagem de cota → consentimento LGPD → CapturaFotos (§8) → questionário c/ rotação → recibo (§14.3); fila offline (IndexedDB) + auto-sync; recibo determinístico igual ao backend. Build OK + integração via proxy testada.
+- ⬜ Dashboard de Apuração (§7 RecorteRegional, WebSocket ao vivo)
+- ⬜ Portal de Verificação público (§14.4 `Verificar.jsx`, rota `/v/:code`)
+- 🟡 Áudio/GPS: GPS capturado; gravação de áudio ainda não (app v1 sem áudio)
+- 🟡 Ícones PWA (manifest sem ícones por enquanto)
 
 ## Critérios de aceite (§11 + §14.5) — checklist de validação final
 1–14: ver `docs/PROMPT-backend.md`. Nenhum validado ainda (lógica pendente).

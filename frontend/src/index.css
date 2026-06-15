@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Tokens do PROMPT §14.5 (fonte única de verdade visual). */
+:root {
+  --bg: #020617;
+  --surface: #0f172a;
+  --surface-2: #1e293b;
+  --border: #1e293b;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --primary: #10b981;
+  --primary-2: #34d399;
+  --warn: #fbbf24;
+  --danger: #fb7185;
+  --radius: 16px;
+  --radius-lg: 20px;
+  --font: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, "JetBrains Mono", monospace;
+}
+
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.btn-primary, .btn-secondary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 12px 16px; border-radius: var(--radius);
+  font-size: 14px; font-weight: 600; transition: filter .15s; cursor: pointer; border: none;
+}
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid #334155; }
+.btn-primary:disabled, .btn-secondary:disabled { opacity: .45; cursor: not-allowed; }
+.btn-primary:not(:disabled):hover, .btn-secondary:not(:disabled):hover { filter: brightness(1.12); }
+.input {
+  width: 100%; padding: 12px; border-radius: var(--radius);
+  background: var(--surface-2); border: 1px solid #334155; color: var(--text); font-size: 15px;
+}
+.input:focus { outline: 2px solid var(--primary); }
