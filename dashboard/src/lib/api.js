@@ -24,4 +24,5 @@ export const api = {
   login: (email, password) => req("/auth/login", { method: "POST", body: { email, password }, needAuth: false }),
   snapshot: () => req("/apuracao/snapshot"),
   resumo: () => req("/apuracao/resumo"),
+  scoped: () => req("/apuracao/scoped"),
 };

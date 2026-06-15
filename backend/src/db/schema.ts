@@ -50,6 +50,7 @@ export const users = pgTable(
     role: userRole("role").notNull(),
     registrationCode: text("registration_code").unique(), // ex.: ENT-0147
     managerId: uuid("manager_id"), // entrevistador → seu gerente (NOT NULL p/ interviewer, enforçado na API)
+    stratumId: uuid("stratum_id"), // zona/município que o gerente representa (apenas managers)
     createdBy: uuid("created_by"), // quem cadastrou (trilha da hierarquia)
     active: boolean("active").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

@@ -33,4 +33,6 @@ export const api = {
   setActive: (id, active) => req(`/users/${id}/active`, { method: "PATCH", body: { active } }),
   // Dados
   resumo: () => req("/apuracao/resumo"),
+  snapshot: () => req("/apuracao/snapshot"),
+  listStrata: () => req("/strata"),
 };

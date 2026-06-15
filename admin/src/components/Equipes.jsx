@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { UserPlus, Users, Power, ChevronDown, ChevronRight } from "lucide-react";
+import { UserPlus, Users, Power, ChevronDown, ChevronRight, MapPin } from "lucide-react";
 import { api } from "../lib/api.js";
 
 const ROLE_LABEL = {
@@ -9,13 +9,17 @@ const ROLE_LABEL = {
 
 export default function Equipes() {
   const [users, setUsers] = useState([]);
-  const [mgrForm, setMgrForm] = useState({ name: "", email: "", password: "" });
+  const [strata, setStrata] = useState([]);
+  const [mgrForm, setMgrForm] = useState({ name: "", email: "", password: "", stratumId: "" });
   const [entForm, setEntForm] = useState({ name: "", email: "", password: "", managerId: "" });
   const [open, setOpen] = useState({});
   const [msg, setMsg] = useState("");
 
   const load = () => api.listUsers().then((r) => setUsers(r.users)).catch(() => {});
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    api.listStrata().then((r) => setStrata(r.strata)).catch(() => {});
+  }, []);
 
   const managers = users.filter((u) => u.role === "manager");
   const interviewersOf = (mid) => users.filter((u) => u.role === "interviewer" && u.manager_id === mid);
@@ -23,9 +27,10 @@ export default function Equipes() {
 
   const createManager = async (e) => {
     e.preventDefault(); setMsg("");
+    if (!mgrForm.stratumId) { setMsg("Selecione a zona/município do gerente."); return; }
     try {
       await api.createUser({ ...mgrForm, email: mgrForm.email.trim().toLowerCase(), role: "manager" });
-      setMgrForm({ name: "", email: "", password: "" }); await load();
+      setMgrForm({ name: "", email: "", password: "", stratumId: "" }); await load();
     } catch (e2) { setMsg(e2.body?.error === "email_or_code_already_exists" ? "E-mail já cadastrado." : "Erro ao criar gerente."); }
   };
 
@@ -61,6 +66,10 @@ export default function Equipes() {
             <input className="input" placeholder="Nome" value={mgrForm.name} onChange={(e) => setMgrForm({ ...mgrForm, name: e.target.value })} required />
             <input className="input" type="email" placeholder="E-mail" autoCapitalize="none" value={mgrForm.email} onChange={(e) => setMgrForm({ ...mgrForm, email: e.target.value })} required />
             <input className="input" type="password" placeholder="Senha (mín. 8)" value={mgrForm.password} onChange={(e) => setMgrForm({ ...mgrForm, password: e.target.value })} minLength={8} required />
+            <select className="input" value={mgrForm.stratumId} onChange={(e) => setMgrForm({ ...mgrForm, stratumId: e.target.value })} required>
+              <option value="">— Zona / município —</option>
+              {strata.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
           </div>
           <button className="btn-primary mt-3"><UserPlus size={15} /> Criar gerente</button>
         </form>
@@ -96,7 +105,10 @@ export default function Equipes() {
                   {isOpen ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
                   <span className={`w-2 h-2 rounded-full ${m.active ? "bg-emerald-400" : "bg-slate-600"}`} />
                   <span className="font-semibold">{m.name}</span>
-                  <span className="ml-auto text-xs text-slate-400">{team.length} entrevistador(es)</span>
+                  {m.stratum_name
+                    ? <span className="text-[11px] text-emerald-300 flex items-center gap-0.5"><MapPin size={10} />{m.stratum_name}</span>
+                    : <span className="text-[11px] text-amber-400">sem zona</span>}
+                  <span className="ml-auto text-xs text-slate-400">{team.length} entrev.</span>
                   <span onClick={(e) => { e.stopPropagation(); toggle(m); }} className={`p-1 ${m.active ? "text-emerald-400" : "text-slate-500"}`}><Power size={14} /></span>
                 </button>
                 {isOpen && (

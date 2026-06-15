@@ -150,6 +150,60 @@ export async function progressSnapshot() {
   };
 }
 
+// ─── Apuração de UMA zona (estrato) — dashboard do gerente ───────────
+export async function scopedApuracao(stratumId: string): Promise<unknown> {
+  const gov = await db.execute(sql`
+    SELECT c.name, c.color, COUNT(*)::int AS votes,
+           ROUND(100.0 * COUNT(*) / NULLIF(SUM(COUNT(*)) OVER (), 0), 1) AS pct
+    FROM answers a
+    JOIN interviews i ON i.id = a.interview_id AND i.status <> 'rejected'
+    JOIN candidates c ON c.id = a.candidate_id
+    WHERE a.question_code = 'gov_c1' AND i.stratum_id = ${stratumId}
+    GROUP BY c.id, c.name, c.color ORDER BY votes DESC`);
+
+  const senRows = await db.execute(sql`
+    SELECT c.name, c.color, COUNT(*)::int AS votes
+    FROM answers a
+    JOIN interviews i ON i.id = a.interview_id AND i.status <> 'rejected'
+    JOIN candidates c ON c.id = a.candidate_id
+    WHERE a.question_code IN ('sen_v1','sen_v2') AND i.stratum_id = ${stratumId}
+    GROUP BY c.id, c.name, c.color ORDER BY votes DESC`);
+  const senSum = senRows.rows.reduce((s, r) => s + Number(r.votes), 0);
+  const senado = senRows.rows.map((r) => ({
+    name: r.name as string, color: (r.color as string) ?? null, votes: Number(r.votes),
+    pct: senSum > 0 ? Math.round((1000 * Number(r.votes)) / senSum) / 10 : 0,
+  }));
+
+  const st = await db.execute(sql`SELECT id, name, region, zone, municipality, target FROM strata WHERE id = ${stratumId} LIMIT 1`);
+  const stratum = st.rows[0] ?? null;
+  const dn = await db.execute(sql`SELECT COUNT(*)::int AS done FROM interviews WHERE stratum_id = ${stratumId} AND status <> 'rejected'`);
+  const quotas = await db.execute(sql`
+    SELECT label, sex, age_min, age_max, completed, target, GREATEST(target - completed, 0) AS remaining
+    FROM quotas WHERE stratum_id = ${stratumId} ORDER BY label`);
+  const flags = await db.execute(sql`
+    SELECT f AS flag, COUNT(*)::int AS count
+    FROM interviews i, jsonb_array_elements_text(i.fraud_flags) f
+    WHERE i.stratum_id = ${stratumId} AND i.status <> 'rejected'
+    GROUP BY f ORDER BY count DESC`);
+  const recent = await db.execute(sql`
+    SELECT i.id, u.name AS interviewer, q.label AS profile, i.duration_sec, i.fraud_flags, i.synced_at,
+           (SELECT c.name FROM answers a JOIN candidates c ON c.id = a.candidate_id
+            WHERE a.interview_id = i.id AND a.question_code = 'gov_c1') AS gov_vote
+    FROM interviews i JOIN users u ON u.id = i.interviewer_id JOIN quotas q ON q.id = i.quota_id
+    WHERE i.stratum_id = ${stratumId} AND i.status <> 'rejected'
+    ORDER BY i.synced_at DESC LIMIT 8`);
+
+  return {
+    stratum,
+    progress: { done: Number(dn.rows[0]?.done ?? 0), target: stratum ? Number((stratum as Record<string, unknown>).target) : 0 },
+    governo: gov.rows.map(toRank),
+    senado,
+    quotas: quotas.rows,
+    flags: flags.rows,
+    recent: recent.rows,
+  };
+}
+
 function toRank(x: Record<string, unknown>): RankRow {
   return {
     name: x.name as string,

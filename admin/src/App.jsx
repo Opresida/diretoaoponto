@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { Shield, LogOut, Vote, Users, LayoutDashboard } from "lucide-react";
+import { Shield, LogOut, Vote, Users, LayoutDashboard, Radio } from "lucide-react";
 import { auth } from "./lib/api.js";
 import Login from "./components/Login.jsx";
 import Candidatos from "./components/Candidatos.jsx";
 import Equipes from "./components/Equipes.jsx";
 import VisaoGeral from "./components/VisaoGeral.jsx";
+import ApuracaoEmbed from "./components/ApuracaoEmbed.jsx";
 
 const TABS = [
   ["visao", "Visão geral", LayoutDashboard],
+  ["apuracao", "Apuração", Radio],
   ["candidatos", "Candidatos", Vote],
   ["equipes", "Equipes", Users],
 ];
@@ -41,6 +43,7 @@ export default function App() {
       </div>
 
       {tab === "visao" && <VisaoGeral />}
+      {tab === "apuracao" && <ApuracaoEmbed />}
       {tab === "candidatos" && <Candidatos />}
       {tab === "equipes" && <Equipes />}
     </div>

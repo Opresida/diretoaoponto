@@ -16,6 +16,7 @@ export const CreateUserSchema = z.object({
     .enum(["admin", "manager", "coordinator", "statistician", "supervisor", "interviewer", "client"])
     .optional(),
   managerId: z.string().uuid().optional(),
+  stratumId: z.string().uuid().optional(), // zona do gerente
   registrationCode: z.string().optional(),
 });
 
@@ -28,10 +29,12 @@ async function nextInterviewerCode(): Promise<string> {
 router.get("/", requireRole("admin"), async (_req, res, next) => {
   try {
     const r = await db.execute(sql`
-      SELECT u.id, u.name, u.email, u.role, u.registration_code, u.active, u.manager_id,
-             m.name AS manager_name,
+      SELECT u.id, u.name, u.email, u.role, u.registration_code, u.active, u.manager_id, u.stratum_id,
+             m.name AS manager_name, s.name AS stratum_name,
              (SELECT COUNT(*) FROM interviews i WHERE i.interviewer_id = u.id AND i.status <> 'rejected')::int AS interviews
-      FROM users u LEFT JOIN users m ON m.id = u.manager_id
+      FROM users u
+      LEFT JOIN users m ON m.id = u.manager_id
+      LEFT JOIN strata s ON s.id = u.stratum_id
       ORDER BY u.role, u.name`);
     res.json({ users: r.rows });
   } catch (e) { next(e); }
@@ -64,10 +67,11 @@ router.post("/", requireRole("manager"), async (req, res, next) => {
     const passwordHash = await bcrypt.hash(body.password, 10);
     const regCode = role === "interviewer" ? body.registrationCode ?? (await nextInterviewerCode()) : body.registrationCode ?? null;
 
+    const stratumId = role === "manager" ? body.stratumId ?? null : null;
     const r = await db.execute(sql`
-      INSERT INTO users (name, email, password_hash, role, registration_code, manager_id, created_by)
-      VALUES (${body.name}, ${body.email}, ${passwordHash}, ${role}::user_role, ${regCode}, ${managerId}, ${me.id})
-      RETURNING id, name, email, role, registration_code, manager_id, created_by, active, created_at`);
+      INSERT INTO users (name, email, password_hash, role, registration_code, manager_id, stratum_id, created_by)
+      VALUES (${body.name}, ${body.email}, ${passwordHash}, ${role}::user_role, ${regCode}, ${managerId}, ${stratumId}, ${me.id})
+      RETURNING id, name, email, role, registration_code, manager_id, stratum_id, created_by, active, created_at`);
     res.status(201).json(r.rows[0]);
   } catch (e: any) {
     if (e?.code === "23505") {
