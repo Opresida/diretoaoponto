@@ -2,7 +2,7 @@
 // Reusa snapshot REST + WebSocket; sem header/logout próprios (o Admin provê).
 import { useEffect, useRef, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
-import { Crown, AlertTriangle, CheckCircle2, MapPin, Pause, Play, Radio } from "lucide-react";
+import { Crown, AlertTriangle, CheckCircle2, MapPin, Pause, Play, Radio, Mic, Image as ImageIcon, X, Headphones } from "lucide-react";
 import { api, auth } from "../lib/api.js";
 import RecorteRegional from "./RecorteRegional.jsx";
 import CandAvatar from "./CandAvatar.jsx";
@@ -19,8 +19,16 @@ export default function ApuracaoEmbed() {
   const [wsOpen, setWsOpen] = useState(false);
   const [wsTick, setWsTick] = useState(0);
   const [photoByName, setPhotoByName] = useState({});
+  const [mediaSel, setMediaSel] = useState(null); // entrevista selecionada no feed
+  const [media, setMedia] = useState(null);
   const aoVivoRef = useRef(true);
   aoVivoRef.current = aoVivo;
+
+  const abrirMidia = async (f) => {
+    setMediaSel(f); setMedia(null);
+    try { setMedia(await api.interviewMedia(f.id)); }
+    catch (e) { setMedia({ error: e.body?.error || "erro" }); }
+  };
 
   useEffect(() => {
     api.snapshot().then(setSnapshot).catch(() => {});
@@ -123,11 +131,12 @@ export default function ApuracaoEmbed() {
           <div className="space-y-2">
             {feed.length === 0 && <div className="text-xs text-slate-500">Aguardando campo…</div>}
             {feed.map((f) => (
-              <div key={f.id} className="rounded-xl border border-slate-800 bg-slate-800/40 p-2.5 text-xs">
+              <button key={f.id} onClick={() => abrirMidia(f)} title="Ouvir áudio e ver fotos"
+                className="w-full text-left rounded-xl border border-slate-800 bg-slate-800/40 p-2.5 text-xs hover:border-emerald-700 hover:bg-emerald-900/10 transition-colors">
                 <div className="flex justify-between text-slate-200 font-semibold"><span className="truncate">{f.interviewer ?? "—"}</span><span className="text-slate-500">{f.hora}</span></div>
                 <div className="flex items-center gap-1 text-slate-400 mt-0.5"><MapPin size={10} />{f.area} · {f.profile}</div>
-                <div className="flex justify-between mt-0.5"><span>Gov: <span className="text-emerald-300">{f.govVote ?? "—"}</span> · {fmt(f.durationSec ?? 0)}</span>{f.flags?.length ? <span className="text-amber-300 flex items-center gap-1"><AlertTriangle size={10} />flag</span> : <CheckCircle2 size={12} className="text-emerald-400" />}</div>
-              </div>
+                <div className="flex justify-between items-center mt-0.5"><span>Gov: <span className="text-emerald-300">{f.govVote ?? "—"}</span> · {fmt(f.durationSec ?? 0)}</span><span className="flex items-center gap-1.5">{f.flags?.length ? <span className="text-amber-300 flex items-center gap-1"><AlertTriangle size={10} />flag</span> : <CheckCircle2 size={12} className="text-emerald-400" />}<Headphones size={12} className="text-slate-500" /></span></div>
+              </button>
             ))}
           </div>
         </div>
@@ -162,6 +171,41 @@ export default function ApuracaoEmbed() {
           ))}
         </div>
       </div>
+
+      {/* MODAL DE MÍDIA (clique no feed) */}
+      {mediaSel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70" onClick={() => setMediaSel(null)}>
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-4 w-full max-w-md max-h-[85vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <div className="min-w-0">
+                <div className="font-bold truncate">{mediaSel.interviewer ?? "Entrevista"}</div>
+                <div className="text-xs text-slate-400 flex items-center gap-1"><MapPin size={11} />{mediaSel.area} · {fmt(mediaSel.durationSec ?? 0)} · {mediaSel.hora}</div>
+              </div>
+              <button onClick={() => setMediaSel(null)} className="text-slate-400 p-1 shrink-0"><X size={18} /></button>
+            </div>
+            {!media && <div className="text-xs text-slate-500">Carregando mídia…</div>}
+            {media?.error && <div className="text-xs text-amber-300 bg-amber-900/20 border border-amber-700 rounded-lg p-2">Mídia indisponível ({media.error}).</div>}
+            {media && !media.error && (
+              <div className="space-y-3">
+                <div>
+                  <div className="text-xs text-slate-400 mb-1 flex items-center gap-1"><Mic size={12} />Áudio</div>
+                  {media.audio ? <audio controls src={media.audio} className="w-full" /> : <div className="text-xs text-slate-500">Sem áudio.</div>}
+                </div>
+                <div>
+                  <div className="text-xs text-slate-400 mb-1 flex items-center gap-1"><ImageIcon size={12} />Fotos ({media.photos?.length ?? 0})</div>
+                  {media.photos?.length
+                    ? <div className="grid grid-cols-3 gap-2">{media.photos.map((p) => (
+                        <a key={p.seq} href={p.url} target="_blank" rel="noreferrer" className="block aspect-[3/4] rounded-lg overflow-hidden border border-slate-700">
+                          <img src={p.url} alt={`Foto ${p.seq}`} className="w-full h-full object-cover" />
+                        </a>))}</div>
+                    : <div className="text-xs text-slate-500">Sem fotos.</div>}
+                </div>
+                <p className="text-[11px] text-slate-500">Somente auditoria · o voto é sigiloso (não exibido).</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
