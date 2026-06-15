@@ -66,12 +66,12 @@ export default function Dashboard({ user, onLogout }) {
   const linhas = candidatosGov.slice(0, 4);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-4">
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-3 sm:p-4 max-w-7xl mx-auto">
       {/* HEADER */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-lg font-bold">Apuração em Tempo Real</h1>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-base sm:text-lg font-bold">Apuração em Tempo Real</h1>
             <span className={`flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full border ${wsOpen && aoVivo ? "text-emerald-300 border-emerald-700 bg-emerald-900/30" : "text-slate-400 border-slate-700 bg-slate-800"}`}>
               <span className="relative flex h-2 w-2">
                 {wsOpen && aoVivo && <span className="animate-ping absolute h-full w-full rounded-full bg-emerald-400 opacity-60" />}
@@ -95,21 +95,21 @@ export default function Dashboard({ user, onLogout }) {
 
       {/* PLACAR LÍDER */}
       <div className="grid sm:grid-cols-3 gap-3 mb-4">
-        <div className="sm:col-span-2 bg-gradient-to-br from-emerald-900/40 to-slate-900 border border-emerald-700/60 rounded-2xl p-4 flex items-center gap-4">
-          <div className="h-14 w-14 rounded-2xl bg-emerald-500/20 border border-emerald-600 flex items-center justify-center shrink-0">
-            <Crown size={26} className="text-emerald-300" />
+        <div className="sm:col-span-2 bg-gradient-to-br from-emerald-900/40 to-slate-900 border border-emerald-700/60 rounded-2xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+          <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-emerald-500/20 border border-emerald-600 flex items-center justify-center shrink-0">
+            <Crown className="text-emerald-300 w-6 h-6 sm:w-[26px] sm:h-[26px]" />
           </div>
-          <div className="min-w-0">
-            <div className="text-xs text-emerald-300 font-semibold tracking-wide">LIDERANDO · GOVERNO DO AMAZONAS</div>
-            <div className="text-2xl font-bold truncate">{lider?.name ?? "—"}</div>
-            <div className="text-sm text-slate-300">
+          <div className="min-w-0 flex-1">
+            <div className="text-[11px] sm:text-xs text-emerald-300 font-semibold tracking-wide">LIDERANDO · GOVERNO</div>
+            <div className="text-xl sm:text-2xl font-bold truncate">{lider?.name ?? "—"}</div>
+            <div className="text-xs sm:text-sm text-slate-300 truncate">
               {lider ? `${lider.pct.toFixed(1)}% · ` : ""}
               {vice && <><span className="text-emerald-300">+{margem} p.p.</span> sobre {vice.name}</>}
             </div>
           </div>
-          <div className="ml-auto text-right shrink-0">
-            <div className="text-4xl font-black text-emerald-300 tabular-nums">{lider ? lider.pct.toFixed(1) : "0.0"}%</div>
-            <div className="text-xs text-slate-400">{lider?.votes ?? 0} votos</div>
+          <div className="text-right shrink-0">
+            <div className="text-2xl sm:text-4xl font-black text-emerald-300 tabular-nums">{lider ? lider.pct.toFixed(1) : "0.0"}%</div>
+            <div className="text-[10px] sm:text-xs text-slate-400">{lider?.votes ?? 0} votos</div>
           </div>
         </div>
         <div className={`rounded-2xl p-4 border flex flex-col justify-center ${empate ? "bg-amber-900/20 border-amber-700" : "bg-slate-900 border-slate-800"}`}>
@@ -127,7 +127,7 @@ export default function Dashboard({ user, onLogout }) {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-4">
+      <div className="grid gap-3 sm:gap-4 lg:grid-cols-3">
         {/* RECORTE REGIONAL (governo) */}
         <RecorteRegional governo={snapshot.governo} />
 
