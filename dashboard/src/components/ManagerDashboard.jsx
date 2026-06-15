@@ -1,7 +1,7 @@
 // Dashboard do GERENTE — exclusivo da zona dele. Reusa /api/apuracao/scoped e
 // reescuta o WebSocket apenas para saber quando recarregar a própria zona.
 import { useEffect, useRef, useState } from "react";
-import { Crown, AlertTriangle, CheckCircle2, MapPin, Radio, LogOut, Users, WifiOff } from "lucide-react";
+import { Crown, AlertTriangle, CheckCircle2, MapPin, Radio, LogOut, Users, WifiOff, Mic, Image as ImageIcon, X, Headphones } from "lucide-react";
 import { api, auth } from "../lib/api.js";
 import CandAvatar from "./CandAvatar.jsx";
 import ManagerEquipe from "./ManagerEquipe.jsx";
@@ -14,7 +14,15 @@ export default function ManagerDashboard({ user, onLogout }) {
   const [wsOpen, setWsOpen] = useState(false);
   const [photoByName, setPhotoByName] = useState({});
   const [view, setView] = useState("painel");
+  const [mediaSel, setMediaSel] = useState(null);
+  const [media, setMedia] = useState(null);
   const reloadTimer = useRef(null);
+
+  const abrirMidia = async (f) => {
+    setMediaSel(f); setMedia(null);
+    try { setMedia(await api.interviewMedia(f.id)); }
+    catch (e) { setMedia({ error: e.body?.error || (e.status === 403 ? "fora da sua equipe" : "erro") }); }
+  };
 
   const load = () => api.scoped().then(setData).catch(() => {});
   useEffect(() => {
@@ -170,12 +178,13 @@ export default function ManagerDashboard({ user, onLogout }) {
           <div className="space-y-2">
             {(data.recent ?? []).length === 0 && <div className="text-xs text-slate-500">Aguardando campo…</div>}
             {(data.recent ?? []).map((f) => (
-              <div key={f.id} className="rounded-xl border border-slate-800 bg-slate-800/40 p-2.5 text-xs">
+              <button key={f.id} onClick={() => abrirMidia(f)} title="Ouvir áudio e ver fotos"
+                className="w-full text-left rounded-xl border border-slate-800 bg-slate-800/40 p-2.5 text-xs hover:border-emerald-700 hover:bg-emerald-900/10 transition-colors">
                 <div className="flex justify-between text-slate-200 font-semibold"><span className="truncate">{f.interviewer}</span>
-                  {(f.fraud_flags?.length ?? 0) > 0 ? <span className="text-amber-300 flex items-center gap-1 shrink-0"><AlertTriangle size={10} />flag</span> : <CheckCircle2 size={12} className="text-emerald-400 shrink-0" />}
+                  <span className="flex items-center gap-1.5 shrink-0">{(f.fraud_flags?.length ?? 0) > 0 ? <span className="text-amber-300 flex items-center gap-1"><AlertTriangle size={10} />flag</span> : <CheckCircle2 size={12} className="text-emerald-400" />}<Headphones size={12} className="text-slate-500" /></span>
                 </div>
                 <div className="text-slate-400 mt-0.5">{f.profile} · Gov: <span className="text-emerald-300">{f.gov_vote ?? "—"}</span> · {fmt(f.duration_sec ?? 0)}</div>
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -183,6 +192,41 @@ export default function ManagerDashboard({ user, onLogout }) {
 
       <div className="text-center text-xs text-slate-600 mt-4">⚠ Parcial não ponderada · uso interno · somente a sua zona.</div>
       </>)}
+
+      {/* MODAL DE MÍDIA (clique no feed) */}
+      {mediaSel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70" onClick={() => setMediaSel(null)}>
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-4 w-full max-w-md max-h-[85vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <div className="min-w-0">
+                <div className="font-bold truncate">{mediaSel.interviewer ?? "Entrevista"}</div>
+                <div className="text-xs text-slate-400">{mediaSel.profile} · {fmt(mediaSel.duration_sec ?? 0)}</div>
+              </div>
+              <button onClick={() => setMediaSel(null)} className="text-slate-400 p-1 shrink-0"><X size={18} /></button>
+            </div>
+            {!media && <div className="text-xs text-slate-500">Carregando mídia…</div>}
+            {media?.error && <div className="text-xs text-amber-300 bg-amber-900/20 border border-amber-700 rounded-lg p-2">Mídia indisponível ({media.error}).</div>}
+            {media && !media.error && (
+              <div className="space-y-3">
+                <div>
+                  <div className="text-xs text-slate-400 mb-1 flex items-center gap-1"><Mic size={12} />Áudio</div>
+                  {media.audio ? <audio controls src={media.audio} className="w-full" /> : <div className="text-xs text-slate-500">Sem áudio.</div>}
+                </div>
+                <div>
+                  <div className="text-xs text-slate-400 mb-1 flex items-center gap-1"><ImageIcon size={12} />Fotos ({media.photos?.length ?? 0})</div>
+                  {media.photos?.length
+                    ? <div className="grid grid-cols-3 gap-2">{media.photos.map((p) => (
+                        <a key={p.seq} href={p.url} target="_blank" rel="noreferrer" className="block aspect-[3/4] rounded-lg overflow-hidden border border-slate-700">
+                          <img src={p.url} alt={`Foto ${p.seq}`} className="w-full h-full object-cover" />
+                        </a>))}</div>
+                    : <div className="text-xs text-slate-500">Sem fotos.</div>}
+                </div>
+                <p className="text-[11px] text-slate-500">Somente auditoria · o voto é sigiloso (não exibido).</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

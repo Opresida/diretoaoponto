@@ -55,9 +55,18 @@ router.get("/:id/media", requireRole("supervisor"), async (req, res, next) => {
       res.status(501).json({ error: "storage_not_configured", ref: "PROMPT §2 (S3/R2)" });
       return;
     }
-    const it = await db.execute(sql`SELECT audio_key FROM interviews WHERE id = ${req.params.id} LIMIT 1`);
+    const it = await db.execute(sql`
+      SELECT i.audio_key, u.manager_id
+      FROM interviews i JOIN users u ON u.id = i.interviewer_id
+      WHERE i.id = ${req.params.id} LIMIT 1`);
     if (!it.rows.length) {
       res.status(404).json({ error: "not_found" });
+      return;
+    }
+    // Gerente só acessa mídia da própria equipe (supervisor+/admin veem tudo).
+    const me = req.user!;
+    if (me.role === "manager" && it.rows[0]!.manager_id !== me.id) {
+      res.status(403).json({ error: "out_of_scope" });
       return;
     }
     const photos = await db.execute(sql`

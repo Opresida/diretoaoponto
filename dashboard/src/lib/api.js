@@ -25,6 +25,7 @@ export const api = {
   snapshot: () => req("/apuracao/snapshot"),
   resumo: () => req("/apuracao/resumo"),
   scoped: () => req("/apuracao/scoped"),
+  interviewMedia: (id) => req(`/interviews/${id}/media`),
   listCandidates: () => req("/candidates"),
   team: () => req("/team"),
   createUser: (u) => req("/users", { method: "POST", body: u }),
