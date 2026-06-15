@@ -140,7 +140,9 @@ async function main() {
     .returning({ id: users.id });
   const adminId = admin!.id;
 
-  for (const role of ["coordinator", "statistician", "supervisor", "client"] as const) {
+  // Papéis com função/UI: supervisor (checagem) + client. Coordenador/estatístico
+  // removidos (sem app dedicado — apuração geral fica no Admin).
+  for (const role of ["supervisor", "client"] as const) {
     await db.insert(users).values({
       name: `${role[0]!.toUpperCase()}${role.slice(1)} Demo`,
       email: `${role}@diretoaoponto.org`,
