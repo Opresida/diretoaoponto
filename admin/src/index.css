@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { --primary: #10b981; }
+html, body, #root { height: 100%; }
+body { margin: 0; background: #020617; color: #f1f5f9; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; }
+
+.input {
+  width: 100%; padding: 10px 12px; border-radius: 12px;
+  background: #1e293b; border: 1px solid #334155; color: #f1f5f9; font-size: 14px;
+}
+.input:focus { outline: 2px solid var(--primary); }
+.btn-primary, .btn-secondary, .btn-danger {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 14px; border-radius: 12px; font-size: 13px; font-weight: 600; border: none; cursor: pointer;
+}
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-secondary { background: #1e293b; color: #f1f5f9; border: 1px solid #334155; }
+.btn-danger { background: rgba(251,113,133,.12); color: #fda4af; border: 1px solid rgba(251,113,133,.4); }
+.btn-primary:disabled { opacity: .45; cursor: not-allowed; }
+.card { background: #0f172a; border: 1px solid #1e293b; border-radius: 16px; }
+.label { font-size: 11px; color: #94a3b8; }

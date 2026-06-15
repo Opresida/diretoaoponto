@@ -24,6 +24,19 @@ async function nextInterviewerCode(): Promise<string> {
   return `ENT-${String(Number(r.rows[0]?.n ?? 0) + 1).padStart(4, "0")}`;
 }
 
+// GET /api/users — admin: lista todos os usuários (com gerente e produção).
+router.get("/", requireRole("admin"), async (_req, res, next) => {
+  try {
+    const r = await db.execute(sql`
+      SELECT u.id, u.name, u.email, u.role, u.registration_code, u.active, u.manager_id,
+             m.name AS manager_name,
+             (SELECT COUNT(*) FROM interviews i WHERE i.interviewer_id = u.id AND i.status <> 'rejected')::int AS interviews
+      FROM users u LEFT JOIN users m ON m.id = u.manager_id
+      ORDER BY u.role, u.name`);
+    res.json({ users: r.rows });
+  } catch (e) { next(e); }
+});
+
 // POST /api/users — admin: qualquer role; manager: só interviewer da própria equipe.
 router.post("/", requireRole("manager"), async (req, res, next) => {
   try {

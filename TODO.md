@@ -68,6 +68,7 @@ Legenda: ✅ feito · 🟡 stub/parcial · ⬜ não iniciado. Refs = seção do 
 - ✅ Dashboard de Apuração em `/dashboard` (Vite+React+Tailwind+recharts) — login coordinator+, snapshot inicial via REST + WebSocket ao vivo, placar líder + empate técnico, RecorteRegional §7 (Manaus×Interior), ranking Senado (2 vagas), feed de entrevistas, evolução (chart), progresso por região, flags. Endpoint `GET /api/apuracao/snapshot` adicionado. Testado.
 - ✅ Portal de Verificação público (§14.4) em `/portal` (Vite+React, rota `/v/:code`) — testado contra /api/verify real
 - ℹ️ R2 precisa de **CORS** liberando a origem do app (feito p/ localhost:5173/4173 via painel; em prod, adicionar domínio real em AllowedOrigins). Script: `backend/scripts/set-r2-cors.mjs` (requer token admin)
+- ✅ Painel do Admin em `/admin` (Vite+React+Tailwind): abas Visão geral (KPIs/checagem/flags/progresso + atalhos), Candidatos (CRUD c/ cor e votos), Equipes (criar gerente/entrevistador, listar equipes, ativar/desativar). Backend: `GET/POST/PATCH/DELETE /api/candidates` + `GET /api/users` (admin). Verificado via Playwright.
 - 🟡 Áudio/GPS: GPS capturado; gravação de áudio ainda não (app v1 sem áudio)
 - 🟡 Ícones PWA (manifest sem ícones por enquanto)
 
