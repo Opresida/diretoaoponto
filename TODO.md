@@ -65,8 +65,9 @@ Legenda: ✅ feito · 🟡 stub/parcial · ⬜ não iniciado. Refs = seção do 
 
 ## Frontend
 - ✅ **App de Campo (PWA)** em `/frontend` (Vite+React+Tailwind, design tokens §14.5) — login → triagem de cota → consentimento LGPD → CapturaFotos (§8) → questionário c/ rotação → recibo (§14.3); fila offline (IndexedDB) + auto-sync; recibo determinístico igual ao backend. Build OK + integração via proxy testada.
-- ⬜ Dashboard de Apuração (§7 RecorteRegional, WebSocket ao vivo)
-- ⬜ Portal de Verificação público (§14.4 `Verificar.jsx`, rota `/v/:code`)
+- ✅ Dashboard de Apuração em `/dashboard` (Vite+React+Tailwind+recharts) — login coordinator+, snapshot inicial via REST + WebSocket ao vivo, placar líder + empate técnico, RecorteRegional §7 (Manaus×Interior), ranking Senado (2 vagas), feed de entrevistas, evolução (chart), progresso por região, flags. Endpoint `GET /api/apuracao/snapshot` adicionado. Testado.
+- ✅ Portal de Verificação público (§14.4) em `/portal` (Vite+React, rota `/v/:code`) — testado contra /api/verify real
+- ℹ️ R2 precisa de **CORS** liberando a origem do app (feito p/ localhost:5173/4173 via painel; em prod, adicionar domínio real em AllowedOrigins). Script: `backend/scripts/set-r2-cors.mjs` (requer token admin)
 - 🟡 Áudio/GPS: GPS capturado; gravação de áudio ainda não (app v1 sem áudio)
 - 🟡 Ícones PWA (manifest sem ícones por enquanto)
 

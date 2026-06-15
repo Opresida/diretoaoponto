@@ -8,9 +8,20 @@ import {
   resumo,
   type Recorte,
 } from "../services/aggregation.js";
+import { getSnapshot } from "../services/cache.js";
 
 const router = Router();
 router.use(requireRole("coordinator"));
+
+// Snapshot completo (governo/senado/progress nos 3 recortes) — estado inicial
+// do Dashboard, mesmo formato do broadcast do WebSocket (§6).
+router.get("/snapshot", async (_req, res, next) => {
+  try {
+    res.json(await getSnapshot());
+  } catch (e) {
+    next(e);
+  }
+});
 
 const RecorteSchema = z.enum(["total", "manaus", "interior"]).default("total");
 
