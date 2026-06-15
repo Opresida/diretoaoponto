@@ -52,8 +52,8 @@ export default function ManagerEquipe() {
           <button onClick={gerarLink} className="btn-primary">Gerar link</button>
           {link && (
             <div className="mt-3 flex items-center gap-2 bg-slate-800/60 border border-slate-700 rounded-xl p-2">
-              <input className="input text-xs" readOnly value={link} onFocus={(e) => e.target.select()} />
-              <button onClick={() => navigator.clipboard?.writeText(link)} className="btn-secondary px-2 py-2"><Copy size={14} /></button>
+              <input className="input text-xs flex-1 min-w-0" readOnly value={link} onFocus={(e) => e.target.select()} />
+              <button onClick={() => navigator.clipboard?.writeText(link)} className="btn-secondary px-2 py-2 shrink-0"><Copy size={14} /></button>
             </div>
           )}
         </div>

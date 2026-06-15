@@ -107,8 +107,8 @@ export default function Equipes() {
         <button onClick={gerarLinkGerente} className="btn-primary mt-3">Gerar link</button>
         {link && (
           <div className="mt-3 flex items-center gap-2 bg-surface-2/60 border border-slate-700 rounded-el p-2.5">
-            <input className="input text-xs" readOnly value={link} onFocus={(e) => e.target.select()} />
-            <button onClick={() => navigator.clipboard?.writeText(link)} className="btn-secondary px-3 py-2 text-xs">Copiar</button>
+            <input className="input text-xs flex-1 min-w-0" readOnly value={link} onFocus={(e) => e.target.select()} />
+            <button onClick={() => navigator.clipboard?.writeText(link)} className="btn-secondary px-3 py-2 text-xs shrink-0">Copiar</button>
           </div>
         )}
       </div>
