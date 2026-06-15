@@ -31,6 +31,13 @@ async function syncOne(it) {
     await fetch(uploadUrl, { method: "PUT", body: await dataUrlToBlob(p.dataUrl), headers: { "Content-Type": "image/jpeg" } });
     photos.push({ seq: p.seq, storageKey, takenAt: p.takenAt, gps: p.gps });
   }
+  // Áudio da entrevista (opcional) — presign kind audio + PUT do Blob no R2.
+  let audioKey;
+  if (it.audioBlob) {
+    const { uploadUrl, storageKey } = await api.presign("audio", it.clientUuid);
+    await fetch(uploadUrl, { method: "PUT", body: it.audioBlob, headers: { "Content-Type": it.audioBlob.type || "audio/webm" } });
+    audioKey = storageKey;
+  }
   const payload = {
     clientUuid: it.clientUuid,
     stratumId: it.stratumId,
@@ -43,6 +50,7 @@ async function syncOne(it) {
     gpsStart: it.gpsStart,
     gpsEnd: it.gpsEnd,
     photos,
+    audioKey,
     answers: it.answers,
   };
   const res = await api.sync([payload]);

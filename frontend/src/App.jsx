@@ -1,7 +1,9 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { Mic } from "lucide-react";
 import { auth, api } from "./lib/api.js";
 import { getGps } from "./lib/gps.js";
 import { receiptCode } from "./lib/receipt.js";
+import { startRecorder } from "./lib/recorder.js";
 import { enqueue, syncPending, getPending } from "./lib/db.js";
 import Login from "./components/Login.jsx";
 import Home from "./components/Home.jsx";
@@ -20,6 +22,8 @@ export default function App() {
   const [syncing, setSyncing] = useState(false);
   const [draft, setDraft] = useState(null);
   const [recibo, setRecibo] = useState(null);
+  const [recording, setRecording] = useState(false);
+  const recorderRef = useRef(null);
 
   const refreshPending = useCallback(async () => setPending((await getPending()).length), []);
 
@@ -71,12 +75,25 @@ export default function App() {
   };
 
   const startInterview = async () => {
+    // Inicia a gravação da entrevista (opcional — segue sem áudio se negado).
+    recorderRef.current = await startRecorder();
+    setRecording(!!recorderRef.current);
     const gpsStart = (await getGps()) || { lat: 0, lng: 0 };
     setDraft({ clientUuid: crypto.randomUUID(), startedAt: new Date().toISOString(), gpsStart });
     setScreen("triagem");
   };
 
+  const cancelInterview = async () => {
+    if (recorderRef.current) { await recorderRef.current.cancel(); recorderRef.current = null; }
+    setRecording(false);
+    setDraft(null);
+    setScreen("home");
+  };
+
   const finalize = async ({ photos, consentPhoto }) => {
+    const audioBlob = recorderRef.current ? await recorderRef.current.stop() : null;
+    recorderRef.current = null;
+    setRecording(false);
     const endedAt = new Date().toISOString();
     const gpsEnd = (await getGps()) || draft.gpsStart;
     const year = new Date(draft.startedAt).getFullYear();
@@ -93,6 +110,7 @@ export default function App() {
       gpsStart: draft.gpsStart,
       gpsEnd,
       photos: (photos ?? []).map((p, i) => ({ seq: i + 1, dataUrl: p.dataUrl, takenAt: p.takenAt, gps: p.gps })),
+      audioBlob, // Blob (webm) ou null — persiste no IndexedDB e sobe no sync
       answers: draft.answers ?? [],
       receiptCode: code,
     };
@@ -104,45 +122,54 @@ export default function App() {
     setScreen("recibo");
   };
 
-  if (screen === "login")
-    return <Login onLogin={(u) => { setUser(u); setScreen("home"); }} />;
-
-  if (screen === "home")
-    return (
+  let el = null;
+  if (screen === "login") {
+    el = <Login onLogin={(u) => { setUser(u); setScreen("home"); }} />;
+  } else if (screen === "home") {
+    el = (
       <Home user={user} pkg={pkg} pending={pending} online={online} syncing={syncing}
         onStart={startInterview} onSync={doSync}
         onLogout={() => { auth.clear(); setUser(null); setScreen("login"); }} />
     );
-
-  if (screen === "triagem")
-    return (
+  } else if (screen === "triagem") {
+    el = (
       <Triagem pkg={pkg}
         onDone={(d) => { setDraft((cur) => ({ ...cur, ...d })); setScreen("consent"); }}
-        onCancel={() => setScreen("home")} />
+        onCancel={cancelInterview} />
     );
-
-  if (screen === "consent")
-    return <ConsentLGPD onAgree={() => setScreen("questionario")} onCancel={() => setScreen("home")} />;
-
-  if (screen === "questionario")
-    return (
+  } else if (screen === "consent") {
+    el = <ConsentLGPD onAgree={() => setScreen("questionario")} onCancel={cancelInterview} />;
+  } else if (screen === "questionario") {
+    el = (
       <Questionario pkg={pkg}
         onDone={(answers) => { setDraft((cur) => ({ ...cur, answers })); setScreen("fotos"); }}
-        onCancel={() => setScreen("home")} />
+        onCancel={cancelInterview} />
     );
-
-  if (screen === "fotos")
-    return (
+  } else if (screen === "fotos") {
+    el = (
       <CapturaFotos gps={draft?.gpsStart}
         onConcluir={(fotos) => finalize({ photos: fotos, consentPhoto: true })}
         onPular={() => finalize({ photos: [], consentPhoto: false })} />
     );
-
-  if (screen === "recibo")
-    return (
+  } else if (screen === "recibo") {
+    el = (
       <ReciboEntrevista code={recibo.code} synced={recibo.synced} portalUrl={window.location.origin}
         onDone={() => { setRecibo(null); setDraft(null); setScreen("home"); }} />
     );
+  }
 
-  return null;
+  return (
+    <>
+      {recording && (
+        <div className="fixed top-2 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 text-xs font-semibold text-rose-200 bg-rose-900/70 border border-rose-700 rounded-full px-3 py-1 backdrop-blur">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute h-full w-full rounded-full bg-rose-400 opacity-70" />
+            <span className="relative rounded-full h-2 w-2 bg-rose-400" />
+          </span>
+          <Mic size={12} /> Gravando áudio
+        </div>
+      )}
+      {el}
+    </>
+  );
 }
