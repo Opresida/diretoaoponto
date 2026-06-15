@@ -41,7 +41,11 @@ App de Campo (PWA offline)
 4. **Mídia nunca pública** — só presigned URL; banco guarda apenas a key; GET de auditoria expira em 10 min, role supervisor+.
 5. **Hierarquia** admin → manager → interviewer com `teamScope` (gerente só vê a própria equipe).
 6. **Blockchain SELA, não prova veracidade** — hash nasce no dispositivo; ancoragem por Merkle root em lote (1 tx/lote). On-chain vai só a raiz (LGPD).
-7. **Recibo determinístico** — `receiptCode(client_uuid, year)` idêntico no app (offline) e no backend (CA #14).
+7. **Recibo determinístico** — `receiptCode(client_uuid, year)` idêntico no app (offline) e no backend (CA #14). Bug do §14.1 corrigido (`% 32` num alfabeto de 31 chars gerava `undefined`; agora `% ALPHABET.length`) — **a cópia do app precisa do mesmo fix**.
+8. **Dois hashes, dois propósitos** (decisão sobre §13.2/§13.3):
+   - *Hash de dispositivo* (`recomputeHash`, §13.2): recalculado a partir do payload recebido e comparado ao enviado → flag `hash_mismatch` (adulteração **em trânsito** / app modificado). Exige `photoHashes`/`audioHash` no payload.
+   - *Hash de conteúdo* (`contentHash`): computado server-side só sobre campos persistidos e reconstruíveis do banco (normalizado: epoch ms, answers ordenadas). É **este** que vira folha da Merkle e que o `/verify` recalcula contra o banco — permitindo detectar adulteração **pós-sync** (CA #10). O hash de dispositivo cru não é reconstruível do banco (não guardamos blobs), por isso não serve de folha verificável.
+9. **Ancoragem com fallback local** — `runAnchorBatch` faz a tx on-chain na Base quando há `ANCHOR_PRIVATE_KEY`+`ANCHOR_CONTRACT_ADDRESS`; senão grava a âncora em modo `local` (raiz + provas, sem tx). `/verify` reconstrói a prova igual nos dois modos; só o link do explorer (CA #11) depende do deploy real.
 
 ## Frontend (já especificado no PROMPT — fora deste scaffold)
 

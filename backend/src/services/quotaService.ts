@@ -1,15 +1,20 @@
 // Cotas — PROMPT §5 (passo 4) + CA #6.
-// Incrementa completed com WHERE completed < target (rejeita por cota cheia).
-// Reprovação de checagem decrementa completed e dispara reposição.
+import { sql } from "drizzle-orm";
+import type { Exec } from "../db/exec.js";
 
-export async function tryIncrementQuota(_quotaId: string): Promise<boolean> {
-  // TODO §5.4: UPDATE quotas SET completed = completed + 1
-  //            WHERE id = $1 AND completed < target RETURNING id;
-  // retorna false se cota cheia.
-  throw new Error("not implemented — PROMPT §5.4");
+/** Incrementa completed com WHERE completed < target. false = cota cheia. */
+export async function tryIncrementQuota(tx: Exec, quotaId: string): Promise<boolean> {
+  const r = await tx.execute(
+    sql`UPDATE quotas SET completed = completed + 1
+        WHERE id = ${quotaId} AND completed < target
+        RETURNING id`,
+  );
+  return r.rows.length > 0;
 }
 
-export async function decrementQuota(_quotaId: string): Promise<void> {
-  // TODO CA #6: usado na reprovação de checagem.
-  throw new Error("not implemented — PROMPT CA #6");
+/** Decrementa completed (reprovação de checagem) — CA #6. */
+export async function decrementQuota(tx: Exec, quotaId: string): Promise<void> {
+  await tx.execute(
+    sql`UPDATE quotas SET completed = GREATEST(completed - 1, 0) WHERE id = ${quotaId}`,
+  );
 }

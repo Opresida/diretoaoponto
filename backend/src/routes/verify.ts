@@ -1,21 +1,149 @@
 // Verificação pública — PROMPT §13.4 + §14.2. SEM autenticação, rate-limited.
 import { Router } from "express";
+import { sql } from "drizzle-orm";
+import { db } from "../db/index.js";
+import { contentHash } from "../services/hash.js";
+import { verifyProof } from "../services/merkle.js";
 
 const router = Router();
 
-// GET /api/verify/:code — recibo (§14.2). Estados:
-//   not_found | pending_anchor | sealed_valid | integrity_failed
-// Reverifica a prova de Merkle em tempo real (services/merkle.verifyProof).
-// Retorna SOMENTE dados não pessoais (CA #13).
-router.get("/:code", async (_req, res) => {
-  // TODO: rate-limit 20 req/min/IP; localizar por receipt_code.
-  res.status(501).json({ error: "not_implemented", ref: "PROMPT §14.2" });
+// ─── Rate limit simples por IP (20 req/min) ──────────────────────────
+const hits = new Map<string, { n: number; ts: number }>();
+function rateLimited(ip: string): boolean {
+  const now = Date.now();
+  const slot = hits.get(ip);
+  if (!slot || now - slot.ts > 60_000) {
+    hits.set(ip, { n: 1, ts: now });
+    return false;
+  }
+  slot.n++;
+  return slot.n > 20;
+}
+
+interface InterviewRow {
+  id: string;
+  client_uuid: string;
+  started_at: string;
+  ended_at: string;
+  gps_start: { lat: number; lng: number };
+  gps_end: { lat: number; lng: number };
+  payload_hash: string | null;
+  anchor_id: string | null;
+  merkle_proof: string[] | null;
+  synced_at: string;
+}
+
+async function loadByReceipt(code: string): Promise<InterviewRow | null> {
+  const r = await db.execute(sql`
+    SELECT id, client_uuid, started_at, ended_at, gps_start, gps_end,
+           payload_hash, anchor_id, merkle_proof, synced_at
+    FROM interviews WHERE receipt_code = ${code} LIMIT 1`);
+  return (r.rows[0] as InterviewRow | undefined) ?? null;
+}
+
+async function loadById(id: string): Promise<InterviewRow | null> {
+  const r = await db.execute(sql`
+    SELECT id, client_uuid, started_at, ended_at, gps_start, gps_end,
+           payload_hash, anchor_id, merkle_proof, synced_at
+    FROM interviews WHERE id = ${id} LIMIT 1`);
+  return (r.rows[0] as InterviewRow | undefined) ?? null;
+}
+
+/** Recalcula o hash de conteúdo a partir do estado ATUAL do banco (CA #10). */
+async function recomputeContentHash(it: InterviewRow): Promise<string> {
+  const ans = await db.execute(sql`
+    SELECT a.question_code AS q, c.name AS c, a.value_text AS v
+    FROM answers a LEFT JOIN candidates c ON c.id = a.candidate_id
+    WHERE a.interview_id = ${it.id} ORDER BY a.question_code`);
+  return contentHash(
+    {
+      clientUuid: it.client_uuid,
+      startedAt: new Date(it.started_at).getTime(),
+      endedAt: new Date(it.ended_at).getTime(),
+      gpsStart: it.gps_start,
+      gpsEnd: it.gps_end,
+      answers: ans.rows.map((x) => ({
+        q: x.q as string,
+        c: (x.c as string) ?? null,
+        v: (x.v as string) ?? null,
+      })),
+    },
+    process.env.HASH_SALT ?? "",
+  );
+}
+
+function explorerUrl(chain: string, txHash: string | null): string | null {
+  if (!txHash) return null;
+  const host = chain === "base-sepolia" ? "https://sepolia.basescan.org" : "https://basescan.org";
+  return `${host}/tx/${txHash}`;
+}
+
+/** Núcleo da verificação — reverifica a prova de Merkle em tempo real. */
+async function buildVerifyResponse(it: InterviewRow | null) {
+  if (!it) return { status: "not_found" as const };
+  if (!it.anchor_id) {
+    return { status: "pending_anchor" as const, registeredAt: it.synced_at };
+  }
+  const a = await db.execute(sql`
+    SELECT merkle_root, tx_hash, block_number, chain, anchored_at FROM anchors WHERE id = ${it.anchor_id} LIMIT 1`);
+  const anchor = a.rows[0] as
+    | { merkle_root: string; tx_hash: string | null; block_number: number | null; chain: string; anchored_at: string }
+    | undefined;
+  if (!anchor) return { status: "pending_anchor" as const, registeredAt: it.synced_at };
+
+  // CA #10 — conteúdo do banco ainda gera o hash ancorado?
+  const recomputed = await recomputeContentHash(it);
+  const contentOk = recomputed === it.payload_hash;
+  // Prova de inclusão na raiz registrada.
+  const proofOk =
+    !!it.payload_hash && !!it.merkle_proof && verifyProof(it.payload_hash, it.merkle_proof, anchor.merkle_root);
+
+  if (!contentOk || !proofOk) {
+    return {
+      status: "integrity_failed" as const,
+      registeredAt: it.synced_at,
+      anchoredAt: anchor.anchored_at,
+      txHash: anchor.tx_hash,
+    };
+  }
+  return {
+    status: "sealed_valid" as const,
+    registeredAt: it.synced_at,
+    anchoredAt: anchor.anchored_at,
+    txHash: anchor.tx_hash,
+    blockNumber: anchor.block_number,
+    explorerUrl: explorerUrl(anchor.chain, anchor.tx_hash),
+    technical: {
+      payloadHash: it.payload_hash,
+      merkleRoot: anchor.merkle_root,
+      merkleProof: it.merkle_proof,
+      contract: process.env.ANCHOR_CONTRACT_ADDRESS ?? null,
+      chain: anchor.chain,
+    },
+  };
+}
+
+// GET /api/verify/id/:interviewId — modo auditor por id (§13.4).
+router.get("/id/:interviewId", async (req, res, next) => {
+  try {
+    res.json(await buildVerifyResponse(await loadById(req.params.interviewId)));
+  } catch (e) {
+    next(e);
+  }
 });
 
-// GET /api/verify/id/:interviewId — modo auditor por id (§13.4):
-//   { payloadHash, merkleProof, merkleRoot, txHash, blockNumber, explorerUrl }
-router.get("/id/:interviewId", async (_req, res) => {
-  res.status(501).json({ error: "not_implemented", ref: "PROMPT §13.4" });
+// GET /api/verify/:code — recibo público (§14.2).
+router.get("/:code", async (req, res, next) => {
+  try {
+    const ip = req.ip ?? "unknown";
+    if (rateLimited(ip)) {
+      res.status(429).json({ error: "rate_limited" });
+      return;
+    }
+    res.json(await buildVerifyResponse(await loadByReceipt(req.params.code)));
+  } catch (e) {
+    next(e);
+  }
 });
 
 export default router;

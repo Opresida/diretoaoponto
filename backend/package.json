@@ -20,6 +20,7 @@
     "@neondatabase/serverless": "^0.9.4",
     "bcryptjs": "^2.4.3",
     "bullmq": "^5.8.0",
+    "dotenv": "^16.6.1",
     "drizzle-orm": "^0.31.2",
     "ethers": "^6.13.1",
     "express": "^4.19.2",
@@ -27,6 +28,7 @@
     "json-canonicalize": "^1.0.6",
     "jsonwebtoken": "^9.0.2",
     "merkletreejs": "^0.4.0",
+    "sharp": "^0.33.5",
     "ws": "^8.17.1",
     "zod": "^3.23.8"
   },
@@ -37,6 +39,7 @@
     "@types/node": "^20.14.2",
     "@types/ws": "^8.5.10",
     "drizzle-kit": "^0.22.7",
+    "solc": "^0.8.26",
     "tsx": "^4.15.6",
     "typescript": "^5.4.5"
   },

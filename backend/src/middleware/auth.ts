@@ -32,4 +32,15 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
   }
 }
 
-// TODO §5: signAccess/signRefresh (15min/refresh) e verificação de refresh.
+// PROMPT §2/§5 — access 15min + refresh.
+export function signAccess(user: AuthUser): string {
+  return jwt.sign(user, process.env.JWT_SECRET!, { expiresIn: "15m" });
+}
+
+export function signRefresh(payload: { id: string }): string {
+  return jwt.sign(payload, process.env.JWT_REFRESH_SECRET!, { expiresIn: "30d" });
+}
+
+export function verifyRefresh(token: string): { id: string } {
+  return jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as { id: string };
+}
