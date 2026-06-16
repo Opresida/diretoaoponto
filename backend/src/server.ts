@@ -47,8 +47,9 @@ app.use(cors({
   credentials: false,
 }));
 app.use(express.json({ limit: "2mb" }));
-// app atrás de proxy/CDN em prod → IP real p/ o rate-limit.
-app.set("trust proxy", 1);
+// trust proxy: por padrão NÃO confia em X-Forwarded-For (seguro mesmo se exposto direto —
+// evita spoof do IP que fura o rate-limit). Em prod atrás de N proxies, setar TRUST_PROXY=N.
+app.set("trust proxy", process.env.TRUST_PROXY ? Number(process.env.TRUST_PROXY) : false);
 
 // PT-005 — rate-limit em superfícies de credencial (anti brute-force).
 const authLimiter = rateLimit({
