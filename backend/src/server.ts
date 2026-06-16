@@ -79,7 +79,13 @@ app.use("/api/candidates", requireAuth, candidatesRoutes);
 app.use("/api/strata", requireAuth, strataRoutes);
 app.use("/api/municipalities", requireAuth, municipalitiesRoutes);
 app.use("/api/invites", requireAuth, invitesRoutes);
-app.use("/api/reports", requireAuth, reportsRoutes);
+app.use("/api/reports", (req, _res, next) => {
+  // download do PDF é por navegação direta (não envia header) → aceita ?token= só nesse caso.
+  if (!req.headers.authorization && req.method === "GET" && req.path.endsWith("/pdf") && typeof req.query.token === "string") {
+    req.headers.authorization = `Bearer ${req.query.token}`;
+  }
+  next();
+}, requireAuth, reportsRoutes);
 
 app.use(errorHandler);
 

@@ -5,7 +5,6 @@ import { db } from "../db/index.js";
 import { requireRole } from "../middleware/rbac.js";
 import { generateReport, gatherReportData, computeReportHash } from "../services/reportService.js";
 import { renderReportPdf } from "../services/reportPdf.js";
-import { getObject } from "../services/storage.js";
 
 const router = Router();
 
@@ -40,18 +39,15 @@ router.get("/:id/pdf", requireRole("admin"), async (req, res, next) => {
       | undefined;
     if (!rep) { res.status(404).json({ error: "not_found" }); return; }
 
-    let pdf: Buffer;
-    if (rep.pdf_key && process.env.S3_ACCESS_KEY) {
-      pdf = await getObject(rep.pdf_key);
-    } else {
-      const verifyUrl = `${process.env.PUBLIC_PORTAL_ORIGIN ?? "http://localhost:5174"}/r/${rep.code}`;
-      pdf = await renderReportPdf({
-        payload: rep.payload, contentHash: rep.content_hash, verifyUrl,
-        txHash: rep.tx_hash, chain: rep.chain ?? "base", status: rep.status,
-      });
-    }
+    // Sempre regenera do payload selado (o selo é o hash dos DADOS, não dos bytes do PDF).
+    // Assim o layout/logo mais recente vale p/ todos os relatórios, sem re-emitir.
+    const verifyUrl = `${process.env.PUBLIC_PORTAL_ORIGIN ?? "http://localhost:5174"}/r/${rep.code}`;
+    const pdf = await renderReportPdf({
+      payload: rep.payload, contentHash: rep.content_hash, verifyUrl,
+      txHash: rep.tx_hash, chain: rep.chain ?? "base", status: rep.status,
+    });
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `inline; filename="${rep.code}.pdf"`);
+    res.setHeader("Content-Disposition", `attachment; filename="${rep.code}.pdf"`);
     res.send(pdf);
   } catch (e) { next(e); }
 });

@@ -234,6 +234,7 @@ export async function renderReportPdf(input: RenderInput): Promise<Buffer> {
   const range = doc.bufferedPageRange();
   for (let p = 0; p < range.count; p++) {
     doc.switchToPage(range.start + p);
+    doc.page.margins.bottom = 0; // evita o pdfkit auto-criar páginas em branco ao escrever o rodapé
     const fy = PH - 32;
     doc.moveTo(L, fy).lineTo(R, fy).strokeColor(LINE).lineWidth(1).stroke();
     doc.fillColor(MUTE).font("Helvetica").fontSize(7.5)
