@@ -32,9 +32,13 @@ async function main() {
   const meta = await sharp(lockup).metadata();
   console.log("lockup:", meta.width, "x", meta.height);
 
-  // 2) Lockup branco (knockout) — p/ faixa carmim do PDF / cabeçalhos escuros
+  // 2a) lockupWhite (knockout do lockup) — usado só p/ gerar os ícones quadrados.
   const lockupWhite = await toWhite(lockup);
-  await sharp(lockupWhite).toFile(join(ASSETS, "logo-white.png"));
+  // 2b) logo-white.png = versão OFICIAL outline branca p/ fundo escuro (telas escuras + timbre PDF).
+  const whiteLogo = await sharp(join(ASSETS, "logo-darkbg-src.png")).trim().png().toBuffer();
+  await sharp(whiteLogo).toFile(join(ASSETS, "logo-white.png"));
+  const wlMeta = await sharp(whiteLogo).metadata();
+  console.log("logo-white (outline):", wlMeta.width, "x", wlMeta.height);
 
   // 3) Ícone quadrado: lockup branco (knockout) centralizado sobre fundo carmim
   async function squareIcon(size, pad = 0.16) {
