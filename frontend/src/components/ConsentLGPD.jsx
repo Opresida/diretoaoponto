@@ -6,8 +6,8 @@ export default function ConsentLGPD({ onAgree, onCancel }) {
       <h2 className="text-base font-bold mb-3 flex items-center gap-2">
         <ShieldCheck size={18} className="text-primary-light" /> Consentimento (LGPD)
       </h2>
-      <div className="card p-4 text-sm text-slate-600 leading-relaxed mb-4">
-        <p className="font-semibold text-slate-900 mb-2">Leia para o entrevistado:</p>
+      <div className="card p-4 text-sm text-slate-300 leading-relaxed mb-4">
+        <p className="font-semibold text-slate-100 mb-2">Leia para o entrevistado:</p>
         <p>
           "Esta é uma pesquisa de opinião registrada no TSE. Suas respostas são
           confidenciais e o voto é sigiloso. Os dados são tratados conforme a LGPD,

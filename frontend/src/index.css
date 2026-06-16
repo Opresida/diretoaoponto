@@ -2,19 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Identidade oficial "Direto ao Ponto" — superfície CLARA (app de campo, uso diurno). */
+/* Tokens do PROMPT §14.5 (fonte única de verdade visual). */
 :root {
-  --bg: #FAF7F7;
-  --surface: #FFFFFF;
-  --surface-2: #F3ECEC;
-  --border: #EBDFDF;
-  --text: #1F2331;
-  --muted: #6B7280;
+  --bg: #020617;
+  --surface: #0f172a;
+  --surface-2: #1e293b;
+  --border: #1e293b;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
   --primary: #A81824;
   --primary-2: #D81830;
-  --warn: #B45309;
-  --danger: #C62828;
-  --ok: #2E9E4F;
+  --warn: #fbbf24;
+  --danger: #fb7185;
   --radius: 16px;
   --radius-lg: 20px;
   --font: ui-sans-serif, system-ui, -apple-system, sans-serif;
@@ -34,7 +33,6 @@ body {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  box-shadow: 0 1px 2px rgba(31,35,49,.04), 0 8px 24px -16px rgba(168,24,36,.18);
 }
 .btn-primary, .btn-secondary {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
@@ -42,21 +40,11 @@ body {
   font-size: 14px; font-weight: 600; transition: filter .15s; cursor: pointer; border: none;
 }
 .btn-primary { background: var(--primary); color: #fff; }
-.btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid #334155; }
 .btn-primary:disabled, .btn-secondary:disabled { opacity: .45; cursor: not-allowed; }
-.btn-primary:not(:disabled):hover { filter: brightness(1.08); }
-.btn-secondary:not(:disabled):hover { filter: brightness(.98); }
+.btn-primary:not(:disabled):hover, .btn-secondary:not(:disabled):hover { filter: brightness(1.12); }
 .input {
   width: 100%; padding: 12px; border-radius: var(--radius);
-  background: var(--surface); border: 1px solid var(--border); color: var(--text); font-size: 15px;
+  background: var(--surface-2); border: 1px solid #334155; color: var(--text); font-size: 15px;
 }
-.input:focus { outline: 2px solid var(--primary); border-color: var(--primary); }
-
-/* Skeleton shimmer branded (carregamento) */
-.skeleton {
-  background: linear-gradient(90deg, #EFE7E7 25%, #F8F2F2 37%, #EFE7E7 63%);
-  background-size: 400% 100%;
-  animation: dap-shimmer 1.4s ease infinite;
-  border-radius: 10px;
-}
-@keyframes dap-shimmer { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
+.input:focus { outline: 2px solid var(--primary); }

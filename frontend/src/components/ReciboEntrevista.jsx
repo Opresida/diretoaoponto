@@ -14,16 +14,16 @@ export default function ReciboEntrevista({ code, portalUrl, synced, onDone }) {
   return (
     <div className="min-h-full p-4 max-w-md mx-auto flex flex-col">
       <div className="card p-5 text-center">
-        <img src="/logo-lockup.png" alt="Direto ao Ponto" className="h-10 w-auto mx-auto mb-3" />
+        <img src="/logo-white.png" alt="Direto ao Ponto" className="h-9 w-auto mx-auto mb-3" />
         <h2 className="text-base font-bold">Recibo de verificação</h2>
-        <p className="text-xs text-slate-500 mt-1 mb-4">
+        <p className="text-xs text-slate-400 mt-1 mb-4">
           Entregue ao entrevistado. Não contém respostas nem dados pessoais.
         </p>
         <div className="bg-white rounded-2xl p-4 inline-block">
           <QRCodeSVG value={url} size={148} level="M" />
         </div>
-        <div className="font-mono text-lg font-bold tracking-wider text-primary mt-4">{code}</div>
-        <div className="flex items-center justify-center gap-1 text-[11px] text-amber-700 mt-2">
+        <div className="font-mono text-lg font-bold tracking-wider text-emerald-300 mt-4">{code}</div>
+        <div className="flex items-center justify-center gap-1 text-[11px] text-amber-300 mt-2">
           <Clock size={11} /> {synced ? "Selo blockchain em até 1 hora após a sincronização" : "Será enviada quando houver conexão"}
         </div>
         <div className="grid grid-cols-2 gap-2 mt-4">

@@ -30,14 +30,14 @@ export default function Login({ onLogin }) {
   return (
     <div className="min-h-full flex items-center justify-center p-4">
       <form onSubmit={submit} className="card p-6 w-full max-w-sm">
-        <img src="/logo-lockup.png" alt="Direto ao Ponto" className="h-14 w-auto mx-auto mb-3" />
-        <p className="text-xs text-slate-500 text-center mb-5">App de Campo · Entrevistador</p>
+        <img src="/logo-white.png" alt="Direto ao Ponto" className="h-12 w-auto mx-auto mb-3" />
+        <p className="text-xs text-slate-400 text-center mb-5">App de Campo · Entrevistador</p>
         <input className="input mb-3" type="email" placeholder="E-mail" value={email}
           autoCapitalize="none" autoCorrect="off" spellCheck={false} inputMode="email"
           onChange={(e) => setEmail(e.target.value)} required />
         <input className="input mb-3" type="password" placeholder="Senha" value={password}
           onChange={(e) => setPassword(e.target.value)} required />
-        {error && <p className="text-xs text-rose-600 mb-3">{error}</p>}
+        {error && <p className="text-xs text-rose-400 mb-3">{error}</p>}
         <button className="btn-primary w-full" disabled={loading}>
           <LogIn size={16} /> {loading ? "Entrando…" : "Entrar"}
         </button>

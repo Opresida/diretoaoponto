@@ -1,5 +1,5 @@
-// Identidade oficial "Direto ao Ponto" — App de Campo (superfície CLARA).
-// emerald é remapeado p/ carmim — recolore ícones/acentos automaticamente.
+// Identidade oficial "Direto ao Ponto" — App de Campo (superfície ESCURA, ferramenta do entrevistador).
+// emerald é remapeado p/ carmim — recolore todos os estados ativos/seleção de uma vez.
 const brand = {
   DEFAULT: "#A81824", bright: "#D81830", dark: "#7A0C18", darker: "#5A0010",
   50: "#FCF0F0", 100: "#FCE4E4",
@@ -14,9 +14,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: "#FAF7F7",
-        surface: "#FFFFFF",
-        "surface-2": "#F3ECEC",
+        bg: "#020617",
+        surface: "#0f172a",
+        "surface-2": "#1e293b",
         primary: { DEFAULT: "#A81824", light: "#D81830" },
         brand,
         emerald: crimsonRamp,        // marca: verde antigo -> carmim

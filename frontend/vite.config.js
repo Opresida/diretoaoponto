@@ -14,7 +14,7 @@ export default defineConfig({
         short_name: "Direto ao Ponto",
         description: "App de campo do entrevistador",
         theme_color: "#A81824",
-        background_color: "#FAF7F7",
+        background_color: "#020617",
         display: "standalone",
         orientation: "portrait",
         icons: [
