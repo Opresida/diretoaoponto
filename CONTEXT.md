@@ -21,7 +21,7 @@ A blockchain prova que o dado **não foi alterado após a coleta**; a veracidade
 Node 20 + TS + Express + Drizzle/Neon + ws + Zod + S3/R2 + BullMQ/Redis + JWT/bcrypt + ethers/merkletreejs. Detalhes em [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Estado atual
-Scaffold base do backend criado (estrutura, schema, migration, contrato, helpers, stubs). Lógica de negócio pendente — ver [TODO.md](TODO.md). Repo oficial: https://github.com/Opresida/diretoaoponto.git
+Backend e 5 apps implementados e testados (Neon/R2/Redis/Base Sepolia provisionados; sync, apuração, checagem, convites, relatório selado, ancoragem on-chain reais). **Identidade oficial aplicada** (carmim + logo + timbre; 2026-06-15) — ver [TODO.md](TODO.md). **Pentest SAST (2026-06-15)** concluído: `docs/SECURITY-AUDIT-2026-06-15.md` (1 crítico de sigilo do voto a corrigir antes de coletar dados reais). Repo oficial: https://github.com/Opresida/diretoaoponto.git
 
 ## Convenções
 - Briefing canônico: `docs/PROMPT-backend.md`. Em dúvida de comportamento, ele manda.

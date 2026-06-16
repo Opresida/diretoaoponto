@@ -53,4 +53,12 @@ App de Campo (PWA offline)
 - `CapturaFotos.jsx` (§8) — App, entre consentimento e questionário.
 - `ReciboEntrevista.jsx` (§14.3) — tela de recibo com QR.
 - `Verificar.jsx` (§14.4) — portal público `/v/:code`.
-- `tokens.css` + `tailwind.config.js` (§14.5) — design system unificado (dark slate + emerald).
+- `tailwind.config.js` + CSS por app — **identidade oficial** (2026-06-15): paleta carmim `#A81824` (substitui o slate+emerald do §14.5). Tema híbrido: **portal claro** (público); **campo/admin/gerente/checagem escuros** com acento carmim. `emerald` é remapeado p/ carmim no Tailwind (recolore estados ativos sem editar componente a componente). Assets de marca em `*/public/` (logo + favicon + ícones PWA), gerados por `backend/scripts/gen-brand-assets.mjs` (sharp) a partir de `backend/assets/logo-src.png`.
+
+## Segurança
+
+Pentest SAST (caixa-branca) em 2026-06-15 — relatório completo em [`docs/SECURITY-AUDIT-2026-06-15.md`](docs/SECURITY-AUDIT-2026-06-15.md) e consolidado em `docs/security-findings.json`.
+
+**Controles OK (verificados):** RBAC com `teamScope` (gerente isolado à própria equipe), SQL 100% parametrizado (Drizzle), convites uso-único CSPRNG, mídia privada por presigned URL (TTL 10min), `/verify` não vaza voto/PII, WS autenticado, error handler sem stack trace, sem backdoor/bypass, `.env` gitignored (nunca commitado).
+
+**A corrigir antes de coletar dados reais (ver TODO):** 🔴 **PT-001** — o voto individual vaza no broadcast WS e no `scopedApuracao.recent` (sigilo do voto). 🟠 rotacionar segredos, hardening de boot (helmet+CORS+rate-limit+JWT alg+env guard), vínculo de posse no upload, SSRF do proxy de foto, upgrade de deps (drizzle/ws). Princípio: **nenhuma API de leitura pode retornar o voto individual**; agregados com supressão de célula mínima.

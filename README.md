@@ -16,7 +16,7 @@ Node 20 · TypeScript · Express · Drizzle ORM (`@neondatabase/serverless`) · 
 
 ## Status
 
-🟡 **Scaffold base** — estrutura de pastas, schema Drizzle completo, migration SQL inicial, contrato `AnchorRegistry.sol`, helpers de recibo/merkle/storage e stubs de rotas/serviços/jobs com TODO apontando a seção do PROMPT. **Lógica de negócio ainda não implementada.** Ver [TODO.md](TODO.md).
+🟢 **Funcional** — backend + 5 apps (campo, portal, dashboard gerente, admin, checagem) implementados e testados; Neon/R2/Redis/Base Sepolia provisionados; relatório selado + ancoragem on-chain reais. **Identidade oficial aplicada** (carmim + logo + timbre, 2026-06-15). **Pentest SAST** concluído em `docs/SECURITY-AUDIT-2026-06-15.md` — há 1 achado crítico (sigilo do voto em canais ao vivo) a corrigir **antes de coletar dados reais**. Backlog priorizado em [TODO.md](TODO.md).
 
 ## Rodar (backend)
 

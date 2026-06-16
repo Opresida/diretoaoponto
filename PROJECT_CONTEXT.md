@@ -28,4 +28,4 @@ NÃO abrir browser embutido (Humberto usa ANTIGRAVITY) — apenas informar a URL
 - **Base** — deploy de `AnchorRegistry.sol`, `ANCHOR_PRIVATE_KEY` + `ANCHOR_CONTRACT_ADDRESS`.
 
 ## Estado
-Scaffold base pronto. Próximos passos priorizados em [TODO.md](TODO.md). Atualizar este arquivo e o TODO após cada funcionalidade aprovada.
+Backend + 5 apps funcionais e testados (sync/apuração/checagem/convites/relatório selado/ancoragem on-chain). Identidade oficial aplicada (carmim + logo + timbre, 2026-06-15). Pentest SAST concluído — backlog de correções (1 crítico) em [TODO.md](TODO.md) e `docs/SECURITY-AUDIT-2026-06-15.md`. Atualizar este arquivo e o TODO após cada funcionalidade aprovada.

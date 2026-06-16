@@ -1,0 +1,37 @@
+{
+  "engagement": {
+    "project": "Direto ao Ponto",
+    "type": "SAST caixa-branca (não-destrutivo)",
+    "date": "2026-06-15",
+    "scope": "backend/ + 5 apps Vite/React (localhost)",
+    "authorized_by": "owner (Humberto / MAZARI Holding)"
+  },
+  "summary": {
+    "severities": { "critico": 1, "alto": 7, "medio": 8, "baixo": 5 },
+    "deps_audit": { "high": 4, "moderate": 4, "low": 1 },
+    "top_urgent": ["PT-001", "PT-002", "PT-005"]
+  },
+  "findings": [
+    { "id": "PT-001", "sev": "critico", "cvss": 8.1, "title": "Quebra do sigilo do voto (voto individual no WS broadcast e em /apuracao/scoped recent)", "loc": "routes/sync.ts, services/aggregation.ts", "fix": "remover govVote/gov_vote de todo payload por-entrevista" },
+    { "id": "PT-002", "sev": "alto", "cvss": 9.1, "title": "Segredos reais em texto claro no .env (mitigado: nunca commitado)", "loc": "backend/.env", "fix": "rotacionar + secret manager em prod; ANCHOR_PRIVATE_KEY em KMS" },
+    { "id": "PT-003", "sev": "alto", "cvss": 8.1, "title": "JWT sem algorithms fixado", "loc": "middleware/auth.ts, ws/apuracao.ts", "fix": "algorithms:['HS256'] em todo verify + guard de env no boot" },
+    { "id": "PT-004", "sev": "alto", "cvss": 8.1, "title": "Presigned/storageKey sem vínculo de posse (IDOR/overwrite no bucket)", "loc": "routes/uploads.ts, routes/sync.ts, services/storage.ts", "fix": "reconstruir key no servidor / validar prefixo + posse; bloquear PUT em entrevista selada" },
+    { "id": "PT-005", "sev": "alto", "cvss": 7.5, "title": "Sem rate-limit em login/refresh/convite (brute-force)", "loc": "server.ts, routes/auth.ts", "fix": "express-rate-limit com store Redis + lockout" },
+    { "id": "PT-006", "sev": "alto", "cvss": 7.5, "title": "Sem CORS allowlist nem Helmet", "loc": "server.ts", "fix": "helmet() + cors(allowlist)" },
+    { "id": "PT-007", "sev": "alto", "cvss": 7.2, "title": "SSRF + open redirect no proxy público de foto de candidato", "loc": "routes/candidates.ts", "fix": "proxiar com allowlist de host ou exigir photo_key no R2" },
+    { "id": "PT-008", "sev": "alto", "cvss": 7.5, "title": "Dependências com CVE alto (drizzle-orm <0.45.2 SQLi por identifier; ws via ethers)", "loc": "package.json", "fix": "atualizar drizzle-orm e cadeia ethers/ws; npm audit no CI" },
+    { "id": "PT-009", "sev": "medio", "cvss": 5.0, "title": "De-anonimização por célula pequena (agregados sem supressão)", "loc": "services/aggregation.ts", "fix": "supressão de célula mínima (<5)" },
+    { "id": "PT-010", "sev": "medio", "cvss": 5.3, "title": "Anexo do relatório re-identifica (recibo+área+perfil)", "loc": "services/reportPdf.ts, reportService.ts", "fix": "coarsen/aggregate por cota + marcar confidencial" },
+    { "id": "PT-011", "sev": "medio", "cvss": 4.3, "title": "Recibo determinístico/linkável (sha256 sem salt)", "loc": "services/receipt.ts", "fix": "HMAC com HASH_SALT; desacoplar key de mídia do clientUuid" },
+    { "id": "PT-012", "sev": "medio", "cvss": 5.4, "title": "Refresh token sem rotação/revogação", "loc": "routes/auth.ts", "fix": "jti + rotação + token_version; revalidar papel no banco" },
+    { "id": "PT-013", "sev": "medio", "cvss": 5.3, "title": "Senha-semente 'senha123' p/ todas as contas", "loc": "seed.ts", "fix": "senha aleatória/env; bloquear seed fora de dev; reset no 1o login" },
+    { "id": "PT-014", "sev": "medio", "cvss": 7.1, "title": "Convite (admin) sem validação de input", "loc": "routes/invites.ts", "fix": "schema Zod + validar existência/escopo de managerId/stratumId" },
+    { "id": "PT-015", "sev": "medio", "cvss": 5.3, "title": "Enumeração de usuário por timing no login", "loc": "routes/auth.ts", "fix": "bcrypt.compare sempre contra hash dummy" },
+    { "id": "PT-016", "sev": "medio", "cvss": 5.9, "title": "Sem validação de env no boot", "loc": "middleware/auth.ts, server.ts", "fix": "validar env (Zod) na inicialização" },
+    { "id": "PT-017", "sev": "baixo", "cvss": 3.7, "title": "Política de senha fraca (min 8, sem complexidade)", "loc": "routes/users.ts, routes/invites.ts", "fix": ">=12 / zxcvbn / rejeitar senha vazada" },
+    { "id": "PT-018", "sev": "baixo", "cvss": 3.1, "title": "Race no código do entrevistador (COUNT TOCTOU)", "loc": "services/usersService.ts", "fix": "sequência no banco ou retry no 23505" },
+    { "id": "PT-019", "sev": "baixo", "cvss": 3.7, "title": "scenario sem enum (não é injeção)", "loc": "routes/apuracao.ts, services/aggregation.ts", "fix": "z.enum([...])" },
+    { "id": "PT-020", "sev": "baixo", "cvss": 3.1, "title": "Rate-limit do /verify in-memory (não distribuído)", "loc": "routes/verify.ts", "fix": "express-rate-limit + store Redis + trust proxy" },
+    { "id": "PT-021", "sev": "baixo", "cvss": 3.5, "title": "Sem allowlist de prefixo em storage.ts (defensivo)", "loc": "services/storage.ts", "fix": "regex de prefixo permitido em presignGet/getObject" }
+  ]
+}

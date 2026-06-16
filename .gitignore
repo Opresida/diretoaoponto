@@ -5,3 +5,6 @@ dist/
 *.log
 .DS_Store
 backend/dist/
+
+# Previews de relatório (artefatos locais)
+preview-*.pdf

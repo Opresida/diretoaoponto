@@ -71,7 +71,21 @@ Legenda: ✅ feito · 🟡 stub/parcial · ⬜ não iniciado. Refs = seção do 
 - ✅ Painel do Admin em `/admin`: abas Visão geral, **Apuração** (dashboard completo embutido), Candidatos (CRUD), Equipes (criar gerente **com zona/estrato**, criar entrevistador, equipes c/ zona, ativar/desativar). Backend: `/api/candidates` (CRUD), `GET /api/users`, `GET /api/strata`.
 - ✅ **Gerente vinculado a uma zona/estrato** (`users.stratum_id`) + **Dashboard do Gerente** (`/dashboard` detecta role → `ManagerDashboard` escopado): vê só a zona dele (governo/senado/cotas/recentes/flags via `GET /api/apuracao/scoped`, ao vivo). Verificado via Playwright.
 - 🟡 Áudio/GPS: GPS capturado; gravação de áudio ainda não (app v1 sem áudio)
-- 🟡 Ícones PWA (manifest sem ícones por enquanto)
+- ✅ **Ícones PWA + favicon** gerados (sharp) a partir da logo oficial; manifest configurado (vite-plugin-pwa)
+- ✅ **Rebrand identidade oficial** (2026-06-15) — paleta carmim `#A81824` + logo nos cabeçalhos/login + timbre do PDF. Tema: **portal claro** (público); **campo/admin/gerente/checagem escuros** com acento carmim. `emerald` remapeado p/ carmim nos Tailwind configs. Assets via `backend/scripts/gen-brand-assets.mjs`.
+- ✅ **Relatório selado** (aba Admin "Relatórios") — snapshot + hash + ancoragem na Base + PDF timbrado + verificação pública `/r/:code`.
+
+## Segurança (pentest SAST 2026-06-15) — ⚠️ corrigir antes de dados reais
+Relatório completo: `docs/SECURITY-AUDIT-2026-06-15.md` · consolidado: `docs/security-findings.json`. Placar: 1 crítico, 7 altos, 8 médios, 5 baixos + 9 deps.
+- 🔴 ⬜ **PT-001** — tirar o **voto individual** do broadcast WS (`routes/sync.ts`) e do `scopedApuracao.recent` (`services/aggregation.ts`). *Bloqueante p/ coleta real (sigilo do voto).*
+- 🟠 ⬜ **PT-002** — rotacionar segredos do `.env` + secret manager em prod (estão em claro, mas nunca commitados; `ANCHOR_PRIVATE_KEY` em KMS).
+- 🟠 ⬜ **PT-003/005/006/016** — hardening de boot: `helmet()` + CORS allowlist + `express-rate-limit` (login/refresh/convite, store Redis) + fixar `algorithms:['HS256']` no JWT + validar `.env` no boot.
+- 🟠 ⬜ **PT-004** — vincular `storageKey` à posse / reconstruir no servidor (uploads.ts/sync.ts); bloquear PUT em entrevista selada.
+- 🟠 ⬜ **PT-007** — matar SSRF/open-redirect no `GET /api/candidates/:id/photo` (allowlist de host ou só `photo_key` no R2).
+- 🟠 ⬜ **PT-008** — atualizar deps com CVE alto (`drizzle-orm`≥0.45.2, cadeia `ethers`→`ws`) + `npm audit` no CI.
+- 🟡 ⬜ **PT-009/010/011** — privacidade estatística: supressão de célula mínima nos agregados, coarsen do anexo do relatório, recibo salgado (HMAC `HASH_SALT`).
+- 🟡 ⬜ **PT-012/013/014/015** — rotação/revogação do refresh token; matar `senha123` do seed; Zod no convite admin; login constant-time.
+- 🟢 ⬜ **PT-017→021** — política de senha, race do código ENT-, `scenario` enum, rate-limit do `/verify` em Redis, allowlist de prefixo em `storage.ts`.
 
 ## Critérios de aceite (§11 + §14.5) — checklist de validação final
-1–14: ver `docs/PROMPT-backend.md`. Nenhum validado ainda (lógica pendente).
+1–14: ver `docs/PROMPT-backend.md`. Maioria validada (ver itens ✅ acima); CA #11 on-chain confirmado na Base Sepolia.
