@@ -8,3 +8,6 @@ backend/dist/
 
 # Previews de relatório (artefatos locais)
 preview-*.pdf
+
+# Relatórios de segurança gerados (regeneráveis via backend/scripts/gen-security-report.mjs)
+docs/Relatorio-Seguranca-*.pdf
