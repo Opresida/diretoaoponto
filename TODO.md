@@ -77,12 +77,12 @@ Legenda: ✅ feito · 🟡 stub/parcial · ⬜ não iniciado. Refs = seção do 
 
 ## Segurança (pentest SAST 2026-06-15) — ⚠️ corrigir antes de dados reais
 Relatório completo: `docs/SECURITY-AUDIT-2026-06-15.md` · consolidado: `docs/security-findings.json`. Placar: 1 crítico, 7 altos, 8 médios, 5 baixos + 9 deps.
-- 🔴 ⬜ **PT-001** — tirar o **voto individual** do broadcast WS (`routes/sync.ts`) e do `scopedApuracao.recent` (`services/aggregation.ts`). *Bloqueante p/ coleta real (sigilo do voto).*
-- 🟠 ⬜ **PT-002** — rotacionar segredos do `.env` + secret manager em prod (estão em claro, mas nunca commitados; `ANCHOR_PRIVATE_KEY` em KMS).
-- 🟠 ⬜ **PT-003/005/006/016** — hardening de boot: `helmet()` + CORS allowlist + `express-rate-limit` (login/refresh/convite, store Redis) + fixar `algorithms:['HS256']` no JWT + validar `.env` no boot.
-- 🟠 ⬜ **PT-004** — vincular `storageKey` à posse / reconstruir no servidor (uploads.ts/sync.ts); bloquear PUT em entrevista selada.
-- 🟠 ⬜ **PT-007** — matar SSRF/open-redirect no `GET /api/candidates/:id/photo` (allowlist de host ou só `photo_key` no R2).
-- 🟠 ⬜ **PT-008** — atualizar deps com CVE alto (`drizzle-orm`≥0.45.2, cadeia `ethers`→`ws`) + `npm audit` no CI.
+- 🔴 ✅ **PT-001** (commit `b26c6a2`) — voto individual removido do broadcast WS e do `scopedApuracao.recent` + feeds admin/dashboard.
+- 🟠 ⬜ **PT-002** — rotacionar segredos do `.env` + secret manager em prod (estão em claro, mas nunca commitados; `ANCHOR_PRIVATE_KEY` em KMS). *(operacional, com Humberto)*
+- 🟠 ✅ **PT-003/005/006/016** (commit `a273e9a`) — `helmet()` + CORS allowlist + `express-rate-limit` (login/refresh/convite) + `algorithms:['HS256']` no JWT + `src/config/env.ts` valida no boot. *(rate-limit store Redis em prod = Fase 2)*
+- 🟠 ✅ **PT-004 + PT-021** (commit `6ca7640`) — `storageKey`/`audioKey` reconstruídas no servidor (sync) + allowlist de prefixo em `storage.ts`. *(residual: tabela de posse p/ bloquear PUT overwrite = Fase 2)*
+- 🟠 ✅ **PT-007** (commit `f8e5fb7`) — SSRF/open-redirect morto em `/candidates/:id/photo` (`isSafePublicImageUrl`: só https+FQDN).
+- 🟠 ⬜ **PT-008** — atualizar deps com CVE alto (`drizzle-orm`≥0.45.2, cadeia `ethers`→`ws`) + `npm audit` no CI. *(breaking, testar)*
 - 🟡 ⬜ **PT-009/010/011** — privacidade estatística: supressão de célula mínima nos agregados, coarsen do anexo do relatório, recibo salgado (HMAC `HASH_SALT`).
 - 🟡 ⬜ **PT-012/013/014/015** — rotação/revogação do refresh token; matar `senha123` do seed; Zod no convite admin; login constant-time.
 - 🟢 ⬜ **PT-017→021** — política de senha, race do código ENT-, `scenario` enum, rate-limit do `/verify` em Redis, allowlist de prefixo em `storage.ts`.
