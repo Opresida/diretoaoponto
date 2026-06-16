@@ -28,4 +28,8 @@ NÃO abrir browser embutido (Humberto usa ANTIGRAVITY) — apenas informar a URL
 - **Base** — deploy de `AnchorRegistry.sol`, `ANCHOR_PRIVATE_KEY` + `ANCHOR_CONTRACT_ADDRESS`.
 
 ## Estado
-Backend + 5 apps funcionais e testados (sync/apuração/checagem/convites/relatório selado/ancoragem on-chain). Identidade oficial aplicada (carmim + logo + timbre, 2026-06-15). Pentest SAST concluído — backlog de correções (1 crítico) em [TODO.md](TODO.md) e `docs/SECURITY-AUDIT-2026-06-15.md`. Atualizar este arquivo e o TODO após cada funcionalidade aprovada.
+Backend + 5 apps funcionais e testados (sync/apuração/checagem/convites/relatório selado/ancoragem on-chain) + **questionário configurável por estrato** (cascata aditiva, núcleo de voto protegido, extras agregados). Identidade oficial aplicada (carmim + logo + timbre). Pentest SAST + re-teste: crítico PT-001 e hardening **corrigidos**; pendências pré-produção (PT-002 segredos, PT-008 drizzle, supressão de célula) em [TODO.md](TODO.md) e `docs/SECURITY-AUDIT-2026-06-15.md`. Atualizar este arquivo e o TODO após cada funcionalidade aprovada.
+
+## Materiais comerciais (produto MAZARI Corp)
+- **Deck PDF** (paisagem): `docs/Apresentacao-DiretoAoPonto-MAZARI.pdf` — gerador `backend/scripts/gen-pitch-deck.mjs` (regenerável, gitignored).
+- **Vídeo animado 9:16**: estúdio Remotion em `C:\Users\user\remotion-studio` (voz ElevenLabs "Brian" + trilha/SFX) — completo (~2m28s) + corte social (~43s). Roteiro em `remotion-studio/ROTEIRO-direto-ao-ponto.md`. Repo local separado, **sem remote** (não versionado no GitHub ainda).

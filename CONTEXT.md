@@ -16,12 +16,13 @@ A blockchain prova que o dado **não foi alterado após a coleta**; a veracidade
 7. Parciais = uso interno (coordinator+).
 8. Hierarquia admin → gerente → entrevistador (gerente só cria/vê a própria equipe).
 9. Hash SHA-256 no dispositivo → Merkle root ancorado na Base.
+10. **Questionário configurável por estrato** (cascata **aditiva**: geral → zona → município): o app de campo monta as perguntas a partir do banco. O **núcleo de voto** (`is_core`) é protegido — não pode ser removido, a apuração nunca quebra. Extras (escala/múltipla/aberta) têm agregação automática.
 
 ## Stack & decisões
 Node 20 + TS + Express + Drizzle/Neon + ws + Zod + S3/R2 + BullMQ/Redis + JWT/bcrypt + ethers/merkletreejs. Detalhes em [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Estado atual
-Backend e 5 apps implementados e testados (Neon/R2/Redis/Base Sepolia provisionados; sync, apuração, checagem, convites, relatório selado, ancoragem on-chain reais). **Identidade oficial aplicada** (carmim + logo + timbre; 2026-06-15) — ver [TODO.md](TODO.md). **Pentest SAST (2026-06-15)** concluído: `docs/SECURITY-AUDIT-2026-06-15.md` (1 crítico de sigilo do voto a corrigir antes de coletar dados reais). Repo oficial: https://github.com/Opresida/diretoaoponto.git
+Backend e 5 apps implementados e testados (Neon/R2/Redis/Base Sepolia provisionados; sync, apuração, checagem, convites, relatório selado, ancoragem on-chain reais). **Questionário configurável por estrato** (cascata aditiva + núcleo de voto protegido + extras agregados) implementado e verificado. **Identidade oficial aplicada** (carmim + logo + timbre). **Pentest SAST (2026-06-15)** + re-teste: crítico **PT-001** (sigilo do voto) e hardening de boot **corrigidos**; pendências de pré-produção em [TODO.md](TODO.md). **Materiais comerciais** prontos: deck PDF (`docs/Apresentacao-DiretoAoPonto-MAZARI.pdf`) + vídeo animado 9:16 (estúdio Remotion em `C:\Users\user\remotion-studio`, completo ~2m28s + social ~43s, voz ElevenLabs Brian). Repo oficial: https://github.com/Opresida/diretoaoponto.git
 
 ## Convenções
 - Briefing canônico: `docs/PROMPT-backend.md`. Em dúvida de comportamento, ele manda.

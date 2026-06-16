@@ -46,6 +46,7 @@ App de Campo (PWA offline)
    - *Hash de dispositivo* (`recomputeHash`, §13.2): recalculado a partir do payload recebido e comparado ao enviado → flag `hash_mismatch` (adulteração **em trânsito** / app modificado). Exige `photoHashes`/`audioHash` no payload.
    - *Hash de conteúdo* (`contentHash`): computado server-side só sobre campos persistidos e reconstruíveis do banco (normalizado: epoch ms, answers ordenadas). É **este** que vira folha da Merkle e que o `/verify` recalcula contra o banco — permitindo detectar adulteração **pós-sync** (CA #10). O hash de dispositivo cru não é reconstruível do banco (não guardamos blobs), por isso não serve de folha verificável.
 9. **Ancoragem com fallback local** — `runAnchorBatch` faz a tx on-chain na Base quando há `ANCHOR_PRIVATE_KEY`+`ANCHOR_CONTRACT_ADDRESS`; senão grava a âncora em modo `local` (raiz + provas, sem tx). `/verify` reconstrói a prova igual nos dois modos; só o link do explorer (CA #11) depende do deploy real.
+10. **Questionário configurável por estrato** (migration `0005_questions.sql` + `questions` no schema) — cascata **aditiva** via coluna `stratum_ids uuid[]` (`null` = global; senão herda nos estratos listados). O app de campo recebe as perguntas montadas pelo backend (`field.ts`, query `q.stratum_ids && ARRAY[...]::uuid[]`). `is_core` marca o **núcleo de voto** (protegido: tentativa de remover → 409). Extras (escala/múltipla/aberta) são agregados em `services/aggregation.ts::apuracaoExtra` (`unnest(string_to_array(...))`), expostos no Admin (builder `Questionarios.jsx`) e espelhados read-only no Dashboard do gerente.
 
 ## Frontend (já especificado no PROMPT — fora deste scaffold)
 
@@ -54,6 +55,13 @@ App de Campo (PWA offline)
 - `ReciboEntrevista.jsx` (§14.3) — tela de recibo com QR.
 - `Verificar.jsx` (§14.4) — portal público `/v/:code`.
 - `tailwind.config.js` + CSS por app — **identidade oficial** (2026-06-15): paleta carmim `#A81824` (substitui o slate+emerald do §14.5). Tema híbrido: **portal claro** (público); **campo/admin/gerente/checagem escuros** com acento carmim. `emerald` é remapeado p/ carmim no Tailwind (recolore estados ativos sem editar componente a componente). Assets de marca em `*/public/` (logo + favicon + ícones PWA), gerados por `backend/scripts/gen-brand-assets.mjs` (sharp) a partir de `backend/assets/logo-src.png`.
+
+## Materiais comerciais (fora do produto)
+
+Material de marketing — **não** altera o produto; assinado como produto **MAZARI Corp** (www.mazaricorp.com).
+
+- **Deck PDF (paisagem)** — `backend/scripts/gen-pitch-deck.mjs` (pdfkit, A4 landscape `[842,595]`; truque `margins.bottom = 0` p/ não gerar páginas em branco). Embute prints reais (dados mockados) de `backend/assets/deck/*.png`. Saída em `docs/Apresentacao-DiretoAoPonto-MAZARI.pdf` (gitignored, regenerável).
+- **Vídeo animado 9:16** — estúdio **Remotion** standalone em `C:\Users\user\remotion-studio` (`src/dap/`): cenas + componentes (BlockchainChain, PanZoom, contadores, carimbo), narração **ElevenLabs "Brian"** (`public/dap/audio/`, geradas por `_gen_eleven.py`) + trilha/SFX sintetizados (`sfx/_gen_sfx.py`). Composições `DiretoAoPonto` (~2m28s) e `DiretoAoPonto-Social` (~43s). Roteiro-prompt: `remotion-studio/ROTEIRO-direto-ao-ponto.md`. **Repo local separado, sem remote.**
 
 ## Segurança
 

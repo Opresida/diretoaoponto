@@ -16,7 +16,12 @@ Node 20 · TypeScript · Express · Drizzle ORM (`@neondatabase/serverless`) · 
 
 ## Status
 
-🟢 **Funcional** — backend + 5 apps (campo, portal, dashboard gerente, admin, checagem) implementados e testados; Neon/R2/Redis/Base Sepolia provisionados; relatório selado + ancoragem on-chain reais. **Identidade oficial aplicada** (carmim + logo + timbre, 2026-06-15). **Pentest SAST** concluído em `docs/SECURITY-AUDIT-2026-06-15.md` — há 1 achado crítico (sigilo do voto em canais ao vivo) a corrigir **antes de coletar dados reais**. Backlog priorizado em [TODO.md](TODO.md).
+🟢 **Funcional** — backend + 5 apps (campo, portal, dashboard gerente, admin, checagem) implementados e testados; Neon/R2/Redis/Base Sepolia provisionados; relatório selado + ancoragem on-chain reais; **questionário configurável por estrato** (cascata aditiva, núcleo de voto protegido). **Identidade oficial aplicada** (carmim + logo + timbre). **Pentest SAST** (`docs/SECURITY-AUDIT-2026-06-15.md`) + re-teste: o crítico **PT-001** (sigilo do voto ao vivo) e o hardening de boot foram **corrigidos**; restam pendências de pré-produção (rotação de segredos PT-002, upgrade do drizzle PT-008, supressão de célula mínima) em [TODO.md](TODO.md). Materiais comerciais (deck PDF + vídeo animado) — ver abaixo.
+
+## Materiais comerciais (produto MAZARI Corp · www.mazaricorp.com)
+
+- **Apresentação (PDF paisagem)** — `docs/Apresentacao-DiretoAoPonto-MAZARI.pdf`; gerador `backend/scripts/gen-pitch-deck.mjs` (regenerável, gitignored). Prints reais com dados mockados + diferencial blockchain.
+- **Vídeo animado (9:16)** — estúdio **Remotion** em `C:\Users\user\remotion-studio` (voz ElevenLabs "Brian" + trilha/SFX): versão **completa** (~2m28s) e **corte social/Reels** (~43s). Roteiro-prompt em `remotion-studio/ROTEIRO-direto-ao-ponto.md`. Repo local separado (sem remote).
 
 ## Rodar (backend)
 

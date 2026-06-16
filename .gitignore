@@ -11,3 +11,7 @@ preview-*.pdf
 
 # Relatórios de segurança gerados (regeneráveis via backend/scripts/gen-security-report.mjs)
 docs/Relatorio-Seguranca-*.pdf
+
+# Deck de apresentação gerado + prints de origem (regeneráveis via backend/scripts/gen-pitch-deck.mjs)
+docs/Apresentacao-*.pdf
+backend/assets/deck/

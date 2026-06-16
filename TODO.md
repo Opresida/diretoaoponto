@@ -75,6 +75,19 @@ Legenda: ✅ feito · 🟡 stub/parcial · ⬜ não iniciado. Refs = seção do 
 - ✅ **Rebrand identidade oficial** (2026-06-15) — paleta carmim `#A81824` + logo nos cabeçalhos/login + timbre do PDF. Tema: **portal claro** (público); **campo/admin/gerente/checagem escuros** com acento carmim. `emerald` remapeado p/ carmim nos Tailwind configs. Assets via `backend/scripts/gen-brand-assets.mjs`.
 - ✅ **Relatório selado** (aba Admin "Relatórios") — snapshot + hash + ancoragem na Base + PDF timbrado + verificação pública `/r/:code`.
 
+## Questionário configurável (commit `b0410f1`)
+- ✅ Tabela `questions` (migration `0005_questions.sql` + schema) aplicada no Neon (7 linhas: 5 núcleo + 2 extras)
+- ✅ Cascata **aditiva** por estrato (`stratum_ids uuid[]`, `null` = global) — `field.ts` monta o pacote do app a partir do banco
+- ✅ **Núcleo de voto protegido** (`is_core`) — remoção bloqueada (409); a apuração nunca quebra
+- ✅ Extras (escala/múltipla/aberta) com **agregação automática** (`services/aggregation.ts::apuracaoExtra`)
+- ✅ Builder no Admin (`Questionarios.jsx`) + espelho read-only no Dashboard do gerente (`ManagerQuestionario.jsx`)
+- ✅ App de campo (`Questionario.jsx`) consome o pacote dinâmico; verificado ponta-a-ponta (cascata, 409, extras)
+
+## Materiais comerciais (produto MAZARI Corp · www.mazaricorp.com)
+- ✅ **Deck PDF** (paisagem) `docs/Apresentacao-DiretoAoPonto-MAZARI.pdf` — gerador `backend/scripts/gen-pitch-deck.mjs` (gitignored, regenerável)
+- ✅ **Vídeo animado 9:16** — estúdio Remotion em `C:\Users\user\remotion-studio` (voz ElevenLabs "Brian" + trilha/SFX): completo (~2m28s) + corte social (~43s). Roteiro: `remotion-studio/ROTEIRO-direto-ao-ponto.md`
+- ⬜ (opcional) dar **remote/GitHub** ao `remotion-studio` p/ versionar o vídeo; revogar/rotacionar a API key da ElevenLabs usada na geração
+
 ## Segurança (pentest SAST 2026-06-15) — ⚠️ corrigir antes de dados reais
 Relatório completo: `docs/SECURITY-AUDIT-2026-06-15.md` · consolidado: `docs/security-findings.json`. Placar: 1 crítico, 7 altos, 8 médios, 5 baixos + 9 deps.
 - 🔴 ✅ **PT-001** (commit `b26c6a2`) — voto individual removido do broadcast WS e do `scopedApuracao.recent` + feeds admin/dashboard.
