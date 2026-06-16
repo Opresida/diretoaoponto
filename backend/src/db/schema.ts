@@ -307,3 +307,28 @@ export const reports = pgTable("reports", {
   anchoredAt: timestamp("anchored_at", { withTimezone: true }),
   status: text("status").notNull().default("anchoring"), // anchoring | anchored | local | failed
 });
+
+// ─── questions — questionário configurável por estrato (cascata aditiva, §F4) ──
+export const questions = pgTable(
+  "questions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+    code: text("code").notNull(), // 'gov_c1'… (núcleo) | 'x_<slug>' (extra)
+    type: text("type").notNull(), // open | single | multi | scale
+    label: text("label").notNull(),
+    office: text("office"), // governor|senator|president (núcleo); null nas extras
+    options: jsonb("options"), // opções fixas das extras single/multi/scale
+    rotate: boolean("rotate").notNull().default(false),
+    seq: integer("seq").notNull().default(100),
+    stratumIds: uuid("stratum_ids").array(), // null/vazio = GERAL; senão só nesses estratos
+    isCore: boolean("is_core").notNull().default(false), // núcleo de voto protegido
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    uq: unique("questions_project_code_uq").on(t.projectId, t.code),
+    projIdx: index("questions_project_idx").on(t.projectId, t.seq),
+  }),
+);

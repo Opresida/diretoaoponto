@@ -51,6 +51,18 @@ export const api = {
   // Checagem (admin tem permissão de supervisor+)
   checksQueue: () => req("/checks/queue"),
   checkResult: (id, body) => req(`/checks/${id}/result`, { method: "POST", body }),
+  // Questionário
+  listQuestions: (stratum) => req(stratum ? `/questions?stratum=${stratum}` : "/questions"),
+  createQuestion: (q) => req("/questions", { method: "POST", body: q }),
+  updateQuestion: (id, q) => req(`/questions/${id}`, { method: "PATCH", body: q }),
+  deleteQuestion: (id) => req(`/questions/${id}`, { method: "DELETE" }),
+  reorderQuestions: (order) => req("/questions/reorder", { method: "POST", body: { order } }),
+  apuracaoExtra: ({ code, recorte = "total", zone, municipality } = {}) => {
+    const p = new URLSearchParams({ code, recorte });
+    if (zone) p.set("zone", zone);
+    if (municipality) p.set("municipality", municipality);
+    return req(`/apuracao/extra?${p}`);
+  },
   // Relatórios selados
   listReports: () => req("/reports"),
   generateReport: () => req("/reports", { method: "POST" }),

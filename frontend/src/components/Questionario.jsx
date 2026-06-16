@@ -67,7 +67,8 @@ export default function Questionario({ pkg, onDone, onCancel }) {
     for (const qq of questionnaire) {
       const value = answers[qq.code];
       if (value == null || (Array.isArray(value) && value.length === 0) || value === "") continue;
-      if (qq.type === "single") out.push({ questionCode: qq.code, candidateName: value });
+      // single com office (núcleo) → candidato; single extra (opções) → texto.
+      if (qq.type === "single") out.push(qq.office ? { questionCode: qq.code, candidateName: value } : { questionCode: qq.code, valueText: value });
       else if (qq.type === "multi") out.push({ questionCode: qq.code, valueText: value.join(", ") });
       else out.push({ questionCode: qq.code, valueText: value });
     }
@@ -101,11 +102,11 @@ export default function Questionario({ pkg, onDone, onCancel }) {
 
         {q.type === "single" && (
           <div className="space-y-2">
-            {(ordered[q.code] ?? []).map((c) => (
+            {(q.office ? (ordered[q.code] ?? []) : (q.options ?? []).map((o) => ({ name: o }))).map((c) => (
               <button key={c.name} onClick={() => set(q.code, c.name)}
                 className={`w-full flex items-center gap-2.5 p-2.5 rounded-el text-sm text-left border ${
                   val === c.name ? "border-primary bg-emerald-900/20 text-emerald-200" : "border-slate-700 text-slate-300"}`}>
-                <CandAvatar c={c} />
+                {q.office && <CandAvatar c={c} />}
                 {c.name}
                 {val === c.name && <CheckCircle2 size={16} className="ml-auto text-primary-light" />}
               </button>
@@ -115,13 +116,13 @@ export default function Questionario({ pkg, onDone, onCancel }) {
 
         {q.type === "multi" && (
           <div className="space-y-2">
-            {(ordered[q.code] ?? []).map((c) => {
+            {(q.office ? (ordered[q.code] ?? []) : (q.options ?? []).map((o) => ({ name: o }))).map((c) => {
               const on = (val ?? []).includes(c.name);
               return (
                 <button key={c.name} onClick={() => toggleMulti(q.code, c.name)}
                   className={`w-full flex items-center gap-2.5 p-2.5 rounded-el text-sm text-left border ${
                     on ? "border-rose-500 bg-rose-900/20 text-rose-200" : "border-slate-700 text-slate-300"}`}>
-                  <CandAvatar c={c} />
+                  {q.office && <CandAvatar c={c} />}
                   {c.name}
                   {on && <CheckCircle2 size={16} className="ml-auto text-rose-300" />}
                 </button>
@@ -132,7 +133,7 @@ export default function Questionario({ pkg, onDone, onCancel }) {
 
         {q.type === "scale" && (
           <div className="flex flex-wrap gap-2">
-            {q.scale.map((opt) => (
+            {(q.scale ?? []).map((opt) => (
               <button key={opt} onClick={() => set(q.code, opt)}
                 className={`px-3.5 py-2 rounded-el text-sm border ${
                   val === opt ? "border-primary bg-emerald-900/20 text-emerald-200" : "border-slate-700 text-slate-300"}`}>

@@ -46,6 +46,23 @@ export async function apuracaoGoverno(scenario: string, recorte: Recorte, geo?: 
   return r.rows.map(toRank);
 }
 
+// ─── Perguntas EXTRAS (não-voto: scale/single/multi por opção) ───────
+// Distribuição por opção. multi (value_text "A, B") é dividido via unnest.
+export interface ExtraRow { option: string; count: number; pct: number }
+export async function apuracaoExtra(code: string, recorte: Recorte, geo?: GeoFilter): Promise<ExtraRow[]> {
+  const r = await db.execute(sql`
+    SELECT opt AS option, COUNT(*)::int AS count,
+           ROUND(100.0 * COUNT(*) / NULLIF(SUM(COUNT(*)) OVER (), 0), 1) AS pct
+    FROM answers a
+    JOIN interviews i ON i.id = a.interview_id AND i.status <> 'rejected'
+    JOIN strata s ON s.id = i.stratum_id
+    CROSS JOIN LATERAL unnest(string_to_array(a.value_text, ', ')) AS opt
+    WHERE a.question_code = ${code} AND a.value_text IS NOT NULL AND a.value_text <> ''
+      AND ${geoWhere(recorte, geo)}
+    GROUP BY opt ORDER BY count DESC`);
+  return r.rows.map((x) => ({ option: x.option as string, count: Number(x.count), pct: Number(x.pct) }));
+}
+
 // ─── Senado (2 votos) ────────────────────────────────────────────────
 export async function apuracaoSenado(base: 100 | 200, recorte: Recorte, geo?: GeoFilter): Promise<RankRow[]> {
   const r = await db.execute(sql`

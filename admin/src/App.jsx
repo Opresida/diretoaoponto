@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LogOut, Vote, Users, LayoutDashboard, Radio, MapPin, ClipboardList, FileText, ClipboardCheck } from "lucide-react";
+import { LogOut, Vote, Users, LayoutDashboard, Radio, MapPin, ClipboardList, FileText, ClipboardCheck, HelpCircle } from "lucide-react";
 import { auth } from "./lib/api.js";
 import Login from "./components/Login.jsx";
 import Candidatos from "./components/Candidatos.jsx";
@@ -9,6 +9,7 @@ import ApuracaoEmbed from "./components/ApuracaoEmbed.jsx";
 import Municipios from "./components/Municipios.jsx";
 import Entrevistas from "./components/Entrevistas.jsx";
 import Checagem from "./components/Checagem.jsx";
+import Questionarios from "./components/Questionarios.jsx";
 import Relatorios from "./components/Relatorios.jsx";
 
 const TABS = [
@@ -19,6 +20,7 @@ const TABS = [
   ["relatorios", "Relatórios", FileText],
   ["municipios", "Municípios", MapPin],
   ["candidatos", "Candidatos", Vote],
+  ["questionario", "Questionário", HelpCircle],
   ["equipes", "Equipes", Users],
 ];
 
@@ -57,6 +59,7 @@ export default function App() {
       {tab === "relatorios" && <Relatorios />}
       {tab === "municipios" && <Municipios />}
       {tab === "candidatos" && <Candidatos />}
+      {tab === "questionario" && <Questionarios />}
       {tab === "equipes" && <Equipes />}
     </div>
   );

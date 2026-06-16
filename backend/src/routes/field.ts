@@ -90,12 +90,37 @@ router.get("/package", requireAnyRole("interviewer"), async (req, res, next) => 
       });
     }
 
+    // Questionário do banco (cascata aditiva): perguntas GERAIS (stratum_ids null)
+    // + as escopadas a algum estrato do pacote. Ordenado por seq. Fallback = constante.
+    const qScope = scopeIds.length
+      ? sql`AND (q.stratum_ids IS NULL OR q.stratum_ids && ARRAY[${sql.join(scopeIds.map((id) => sql`${id}`), sql`, `)}]::uuid[])`
+      : sql``;
+    const qRows = await db.execute(sql`
+      SELECT code, type, label, office, options, rotate
+      FROM questions q
+      WHERE q.project_id = ${project.id} AND q.active = true ${qScope}
+      ORDER BY q.seq, q.id`);
+    const questionnaire = qRows.rows.length
+      ? qRows.rows.map((q) => ({
+          code: q.code as string,
+          type: q.type as string,
+          label: q.label as string,
+          office: (q.office as string | null) ?? null,
+          rotate: (q.rotate as boolean) ?? false,
+          // scale usa `scale`; single/multi de extras (sem office) usam `options`.
+          ...(q.type === "scale" ? { scale: (q.options as string[]) ?? [] } : {}),
+          ...(!q.office && (q.type === "single" || q.type === "multi")
+            ? { options: (q.options as string[]) ?? [] }
+            : {}),
+        }))
+      : QUESTIONNAIRE;
+
     res.json({
       project,
       assigned: assigned.rows.length > 0,
       strata,
       candidates,
-      questionnaire: QUESTIONNAIRE,
+      questionnaire,
     });
   } catch (e) {
     next(e);

@@ -180,6 +180,19 @@ async function main() {
     }
   }
 
+  // Questionário inicial (núcleo protegido + 2 extras globais) — espelha 0005_questions.sql.
+  await db.execute(sql`
+    INSERT INTO questions (project_id, code, type, label, office, options, rotate, seq, is_core)
+    VALUES
+      (${proj!.id},'gov_spont','open','Se a eleição para governador fosse hoje, em quem você votaria? (espontânea)','governor',NULL::jsonb,false,10,true),
+      (${proj!.id},'gov_c1','single','E entre estes nomes, em quem votaria para governador?','governor',NULL::jsonb,true,20,true),
+      (${proj!.id},'rejection_gov','multi','Em qual(is) destes você NÃO votaria de jeito nenhum?','governor',NULL::jsonb,true,30,true),
+      (${proj!.id},'sen_v1','single','Para senador você tem 2 votos. Primeiro voto:','senator',NULL::jsonb,true,40,true),
+      (${proj!.id},'sen_v2','single','Segundo voto para senador (diferente do primeiro):','senator',NULL::jsonb,true,50,true),
+      (${proj!.id},'eval_wilson','scale','Como você avalia o atual governo?',NULL,'["Ótimo","Bom","Regular","Ruim","Péssimo","NS/NR"]'::jsonb,false,60,false),
+      (${proj!.id},'know_omar','scale','Você conhece o candidato Omar Aziz?',NULL,'["Conhece bem","Conhece de nome","Não conhece"]'::jsonb,false,70,false)
+    ON CONFLICT (project_id, code) DO NOTHING`);
+
   console.log("seed: OK — projeto, %d estratos, %d cotas, %d candidatos, %d entrevistadores.",
     insertedStrata.length, quotaRows.length, candRows.length, entSeq - 1);
 }

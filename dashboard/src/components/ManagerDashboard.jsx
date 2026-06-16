@@ -5,6 +5,7 @@ import { Crown, AlertTriangle, CheckCircle2, MapPin, Radio, LogOut, Users, WifiO
 import { api, auth } from "../lib/api.js";
 import CandAvatar from "./CandAvatar.jsx";
 import ManagerEquipe from "./ManagerEquipe.jsx";
+import ManagerQuestionario from "./ManagerQuestionario.jsx";
 
 const OPCOES = ["Branco/Nulo", "NS/NR"];
 const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
@@ -87,7 +88,7 @@ export default function ManagerDashboard({ user, onLogout }) {
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <div className="flex gap-1 bg-slate-800 rounded-xl p-1">
-            {[["painel", "Painel"], ["equipe", "Equipe"]].map(([v, l]) => (
+            {[["painel", "Painel"], ["equipe", "Equipe"], ["questionario", "Questionário"]].map(([v, l]) => (
               <button key={v} onClick={() => setView(v)}
                 className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${view === v ? "bg-emerald-600 text-white" : "text-slate-400"}`}>{l}</button>
             ))}
@@ -96,7 +97,7 @@ export default function ManagerDashboard({ user, onLogout }) {
         </div>
       </header>
 
-      {view === "equipe" ? <ManagerEquipe /> : (<>
+      {view === "equipe" ? <ManagerEquipe /> : view === "questionario" ? <ManagerQuestionario stratum={s} /> : (<>
       {/* PROGRESSO DA ZONA */}
       <div className="min-w-0 bg-gradient-to-br from-emerald-900/40 to-slate-900 border border-emerald-700/60 rounded-2xl p-4 mb-4">
         <div className="flex items-center justify-between mb-2">

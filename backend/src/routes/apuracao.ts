@@ -7,6 +7,7 @@ import { requireRole } from "../middleware/rbac.js";
 import {
   apuracaoGoverno,
   apuracaoSenado,
+  apuracaoExtra,
   resumo,
   scopedApuracao,
   type Recorte,
@@ -84,6 +85,18 @@ router.get("/geo", async (_req, res, next) => {
     const manaus = r.rows.filter((x) => x.region === "manaus").map((x) => ({ zone: x.zone, stratumId: x.stratum_id }));
     const interior = r.rows.filter((x) => x.region === "interior").map((x) => ({ municipality: x.municipality, stratumId: x.stratum_id }));
     res.json({ manaus, interior });
+  } catch (e) {
+    next(e);
+  }
+});
+
+// GET /api/apuracao/extra?code=…&recorte=&zone=&municipality= — distribuição de uma pergunta extra.
+router.get("/extra", async (req, res, next) => {
+  try {
+    const code = z.string().min(1).parse(req.query.code);
+    const recorte = RecorteSchema.parse(req.query.recorte ?? "total") as Recorte;
+    const geo = geoOf(req);
+    res.json({ code, recorte, geo, distribution: await apuracaoExtra(code, recorte, geo) });
   } catch (e) {
     next(e);
   }

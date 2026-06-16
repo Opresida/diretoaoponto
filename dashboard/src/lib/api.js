@@ -40,4 +40,12 @@ export const api = {
     if (municipality) q.set("municipality", municipality);
     return req(`/apuracao/governo?${q}`);
   },
+  // Questionário (espelho da zona) — read-only
+  listQuestions: (stratum) => req(stratum ? `/questions?stratum=${stratum}` : "/questions"),
+  apuracaoExtra: ({ code, zone, municipality } = {}) => {
+    const p = new URLSearchParams({ code });
+    if (zone) p.set("zone", zone);
+    if (municipality) p.set("municipality", municipality);
+    return req(`/apuracao/extra?${p}`);
+  },
 };
