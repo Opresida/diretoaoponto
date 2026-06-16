@@ -14,6 +14,8 @@ async function req(path, { method = "GET", body, needAuth = true } = {}) {
   if (needAuth && auth.token) headers.Authorization = `Bearer ${auth.token}`;
   const r = await fetch(`/api${path}`, { method, headers, body: body ? JSON.stringify(body) : undefined });
   if (!r.ok) {
+    // token expirado/inválido → encerra a sessão e volta pro login (evita tela presa em "Carregando…").
+    if (r.status === 401 && needAuth) { auth.clear(); location.reload(); }
     const err = await r.json().catch(() => ({ error: r.statusText }));
     throw Object.assign(new Error(err.error || "request_failed"), { status: r.status });
   }

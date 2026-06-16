@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LogOut, Vote, Users, LayoutDashboard, Radio, MapPin, ClipboardList, FileText } from "lucide-react";
+import { LogOut, Vote, Users, LayoutDashboard, Radio, MapPin, ClipboardList, FileText, ClipboardCheck } from "lucide-react";
 import { auth } from "./lib/api.js";
 import Login from "./components/Login.jsx";
 import Candidatos from "./components/Candidatos.jsx";
@@ -8,12 +8,14 @@ import VisaoGeral from "./components/VisaoGeral.jsx";
 import ApuracaoEmbed from "./components/ApuracaoEmbed.jsx";
 import Municipios from "./components/Municipios.jsx";
 import Entrevistas from "./components/Entrevistas.jsx";
+import Checagem from "./components/Checagem.jsx";
 import Relatorios from "./components/Relatorios.jsx";
 
 const TABS = [
   ["visao", "Visão geral", LayoutDashboard],
   ["apuracao", "Apuração", Radio],
   ["entrevistas", "Entrevistas", ClipboardList],
+  ["checagem", "Checagem", ClipboardCheck],
   ["relatorios", "Relatórios", FileText],
   ["municipios", "Municípios", MapPin],
   ["candidatos", "Candidatos", Vote],
@@ -48,9 +50,10 @@ export default function App() {
         ))}
       </div>
 
-      {tab === "visao" && <VisaoGeral />}
+      {tab === "visao" && <VisaoGeral onGoChecagem={() => setTab("checagem")} />}
       {tab === "apuracao" && <ApuracaoEmbed />}
       {tab === "entrevistas" && <Entrevistas />}
+      {tab === "checagem" && <Checagem />}
       {tab === "relatorios" && <Relatorios />}
       {tab === "municipios" && <Municipios />}
       {tab === "candidatos" && <Candidatos />}

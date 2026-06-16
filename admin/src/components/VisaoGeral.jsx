@@ -10,7 +10,7 @@ const Kpi = ({ icon, label, value, sub }) => (
   </div>
 );
 
-export default function VisaoGeral() {
+export default function VisaoGeral({ onGoChecagem }) {
   const [r, setR] = useState(null);
   useEffect(() => { api.resumo().then(setR).catch(() => {}); }, []);
   if (!r) return <div className="text-slate-400 text-sm">Carregando…</div>;
@@ -33,9 +33,13 @@ export default function VisaoGeral() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
-        {/* CHECAGEM */}
-        <div className="card p-4">
-          <div className="font-semibold text-sm mb-3 flex items-center gap-2"><ClipboardCheck size={15} /> Checagem</div>
+        {/* CHECAGEM — atalho pra aba */}
+        <div onClick={onGoChecagem} role="button" tabIndex={0} title="Abrir a aba Checagem"
+          className="card p-4 cursor-pointer hover:border-emerald-700/60 transition-colors">
+          <div className="font-semibold text-sm mb-3 flex items-center justify-between gap-2">
+            <span className="flex items-center gap-2"><ClipboardCheck size={15} /> Checagem</span>
+            <span className="text-[11px] text-emerald-400 font-normal flex items-center gap-1">Aprovar flags <ExternalLink size={11} /></span>
+          </div>
           <div className="grid grid-cols-2 gap-2 text-sm">
             <div className="bg-surface-2/40 rounded-el p-2.5"><div className="text-xs text-slate-400">Na fila</div><div className="text-lg font-bold">{chk.pending ?? 0}</div></div>
             <div className="bg-surface-2/40 rounded-el p-2.5"><div className="text-xs text-slate-400">Total</div><div className="text-lg font-bold">{chk.total ?? 0}</div></div>
@@ -44,9 +48,13 @@ export default function VisaoGeral() {
           </div>
         </div>
 
-        {/* FLAGS DETALHE */}
-        <div className="card p-4">
-          <div className="font-semibold text-sm mb-3 flex items-center gap-2"><AlertTriangle size={15} className="text-amber-400" /> Flags por tipo</div>
+        {/* FLAGS DETALHE — atalho pra aba */}
+        <div onClick={onGoChecagem} role="button" tabIndex={0} title="Abrir a aba Checagem"
+          className="card p-4 cursor-pointer hover:border-emerald-700/60 transition-colors">
+          <div className="font-semibold text-sm mb-3 flex items-center justify-between gap-2">
+            <span className="flex items-center gap-2"><AlertTriangle size={15} className="text-amber-400" /> Flags por tipo</span>
+            <span className="text-[11px] text-emerald-400 font-normal flex items-center gap-1">Checar <ExternalLink size={11} /></span>
+          </div>
           <div className="space-y-2 text-sm">
             {(r.flags ?? []).length === 0 && <div className="text-xs text-slate-500">Nenhuma flag.</div>}
             {(r.flags ?? []).map((f) => (

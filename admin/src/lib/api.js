@@ -14,6 +14,8 @@ async function req(path, { method = "GET", body, needAuth = true } = {}) {
   if (needAuth && auth.token) headers.Authorization = `Bearer ${auth.token}`;
   const r = await fetch(`/api${path}`, { method, headers, body: body ? JSON.stringify(body) : undefined });
   if (!r.ok) {
+    // token expirado/inválido → encerra a sessão e volta pro login (evita tela presa em "Carregando…").
+    if (r.status === 401 && needAuth) { auth.clear(); location.reload(); }
     const err = await r.json().catch(() => ({ error: r.statusText }));
     throw Object.assign(new Error(err.error || "request_failed"), { status: r.status, body: err });
   }
@@ -46,19 +48,21 @@ export const api = {
     return req(`/interviews?${qs}`);
   },
   interviewMedia: (id) => req(`/interviews/${id}/media`),
+  // Checagem (admin tem permissão de supervisor+)
+  checksQueue: () => req("/checks/queue"),
+  checkResult: (id, body) => req(`/checks/${id}/result`, { method: "POST", body }),
   // Relatórios selados
   listReports: () => req("/reports"),
   generateReport: () => req("/reports", { method: "POST" }),
   reportVerifyUrl: (code) => `${location.origin.replace(/:\d+$/, ":5174")}/r/${code}`,
-  downloadReportPdf: async (id, code) => {
-    const r = await fetch(`/api/reports/${id}/pdf`, { headers: auth.token ? { Authorization: `Bearer ${auth.token}` } : {} });
-    if (!r.ok) throw new Error("pdf_failed");
-    const blob = await r.blob();
-    const url = URL.createObjectURL(blob);
+  downloadReportPdf: (id, code) => {
+    // download dirigido pelo servidor (Content-Disposition: attachment + nome). Síncrono (preserva o gesto
+    // do clique) e não depende do atributo `download` — funciona em navegadores/webviews que o ignoram.
+    // token via query pois a navegação direta não envia o header Authorization.
     const a = document.createElement("a");
-    a.href = url; a.download = `${code}.pdf`;
+    a.href = `/api/reports/${id}/pdf?token=${encodeURIComponent(auth.token || "")}`;
+    a.download = `${code || "relatorio"}.pdf`;
     document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
   },
   governo: ({ recorte = "total", zone, municipality, scenario = "c1" } = {}) => {
     const q = new URLSearchParams({ recorte, scenario });
