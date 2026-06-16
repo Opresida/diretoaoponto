@@ -9,13 +9,28 @@ import { presignGet } from "../services/storage.js";
 
 const router = Router();
 
+// PT-007 — só aceita/segue URL de foto externa que seja https + domínio real (FQDN).
+// Bloqueia IPs literais (privados/loopback/link-local/metadata 169.254.169.254), IPv6 e localhost
+// → mata SSRF e open-redirect a partir da rota pública /:id/photo.
+export function isSafePublicImageUrl(raw: string): boolean {
+  let u: URL;
+  try { u = new URL(raw); } catch { return false; }
+  if (u.protocol !== "https:") return false;
+  const host = u.hostname.toLowerCase();
+  if (host === "localhost" || host.endsWith(".localhost")) return false;
+  if (host.includes(":") || raw.includes("[")) return false;          // IPv6 literal
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) return false;             // IPv4 literal
+  if (!host.includes(".")) return false;                              // exige FQDN
+  return true;
+}
+
 const CandidateSchema = z.object({
   name: z.string().min(1),
   party: z.string().nullable().optional(),
   office: z.string().min(1), // governor | senator | president | ...
   color: z.string().regex(/^#[0-9a-fA-F]{6}$/).nullable().optional(),
   photoKey: z.string().nullable().optional(),
-  photoUrl: z.string().url().nullable().optional(),
+  photoUrl: z.string().url().refine(isSafePublicImageUrl, { message: "photo_url_inseguro (use https + domínio público)" }).nullable().optional(),
 });
 
 // GET /api/candidates — lista (com nº de votos + flag de foto), statistician+.
@@ -100,7 +115,7 @@ publicCandidatePhotoRouter.get("/:id/photo", async (req, res, next) => {
       res.redirect(302, await presignGet(c.photo_key, 600));
       return;
     }
-    if (c.photo_url) { res.redirect(302, c.photo_url); return; }
+    if (c.photo_url && isSafePublicImageUrl(c.photo_url)) { res.redirect(302, c.photo_url); return; }
     res.status(404).end();
   } catch (e) { next(e); }
 });
