@@ -295,7 +295,7 @@ async function broadcastOne(out: BroadcastInterview): Promise<void> {
       profile: out.profile,
       durationSec: out.durationSec,
       flags: out.flags,
-      govVote: out.govVote,
+      // sigilo do voto: o voto individual NUNCA é transmitido (só entra no agregado acima).
     },
     apuracao,
   });

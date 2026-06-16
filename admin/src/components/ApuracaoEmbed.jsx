@@ -135,7 +135,7 @@ export default function ApuracaoEmbed() {
                 className="w-full text-left rounded-xl border border-slate-800 bg-slate-800/40 p-2.5 text-xs hover:border-emerald-700 hover:bg-emerald-900/10 transition-colors">
                 <div className="flex justify-between text-slate-200 font-semibold"><span className="truncate">{f.interviewer ?? "—"}</span><span className="text-slate-500">{f.hora}</span></div>
                 <div className="flex items-center gap-1 text-slate-400 mt-0.5"><MapPin size={10} />{f.area} · {f.profile}</div>
-                <div className="flex justify-between items-center mt-0.5"><span>Gov: <span className="text-emerald-300">{f.govVote ?? "—"}</span> · {fmt(f.durationSec ?? 0)}</span><span className="flex items-center gap-1.5">{f.flags?.length ? <span className="text-amber-300 flex items-center gap-1"><AlertTriangle size={10} />flag</span> : <CheckCircle2 size={12} className="text-emerald-400" />}<Headphones size={12} className="text-slate-500" /></span></div>
+                <div className="flex justify-between items-center mt-0.5"><span>{fmt(f.durationSec ?? 0)}</span><span className="flex items-center gap-1.5">{f.flags?.length ? <span className="text-amber-300 flex items-center gap-1"><AlertTriangle size={10} />flag</span> : <CheckCircle2 size={12} className="text-emerald-400" />}<Headphones size={12} className="text-slate-500" /></span></div>
               </button>
             ))}
           </div>

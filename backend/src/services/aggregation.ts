@@ -195,10 +195,9 @@ export async function scopedApuracao(stratumId: string): Promise<unknown> {
     FROM interviews i, jsonb_array_elements_text(i.fraud_flags) f
     WHERE i.stratum_id = ${stratumId} AND i.status <> 'rejected'
     GROUP BY f ORDER BY count DESC`);
+  // sigilo do voto: o "recentes" NÃO retorna o voto individual (só metadados não-voto).
   const recent = await db.execute(sql`
-    SELECT i.id, u.name AS interviewer, q.label AS profile, i.duration_sec, i.fraud_flags, i.synced_at,
-           (SELECT c.name FROM answers a JOIN candidates c ON c.id = a.candidate_id
-            WHERE a.interview_id = i.id AND a.question_code = 'gov_c1') AS gov_vote
+    SELECT i.id, u.name AS interviewer, q.label AS profile, i.duration_sec, i.fraud_flags, i.synced_at
     FROM interviews i JOIN users u ON u.id = i.interviewer_id JOIN quotas q ON q.id = i.quota_id
     WHERE i.stratum_id = ${stratumId} AND i.status <> 'rejected'
     ORDER BY i.synced_at DESC LIMIT 8`);

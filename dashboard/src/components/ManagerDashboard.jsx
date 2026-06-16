@@ -186,7 +186,7 @@ export default function ManagerDashboard({ user, onLogout }) {
                 <div className="flex justify-between text-slate-200 font-semibold"><span className="truncate">{f.interviewer}</span>
                   <span className="flex items-center gap-1.5 shrink-0">{(f.fraud_flags?.length ?? 0) > 0 ? <span className="text-amber-300 flex items-center gap-1"><AlertTriangle size={10} />flag</span> : <CheckCircle2 size={12} className="text-emerald-400" />}<Headphones size={12} className="text-slate-500" /></span>
                 </div>
-                <div className="text-slate-400 mt-0.5">{f.profile} · Gov: <span className="text-emerald-300">{f.gov_vote ?? "—"}</span> · {fmt(f.duration_sec ?? 0)}</div>
+                <div className="text-slate-400 mt-0.5">{f.profile} · {fmt(f.duration_sec ?? 0)}</div>
               </button>
             ))}
           </div>
