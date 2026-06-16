@@ -10,6 +10,7 @@ import { resolveCandidateId, questionToOffice, NON_CANDIDATE } from "../services
 import { shouldEnqueueCheck, enqueueCheck } from "../services/checkQueue.js";
 import { recomputeHash, contentHash } from "../services/hash.js";
 import { receiptCode } from "../services/receipt.js";
+import { buildStorageKey } from "../services/storage.js";
 import { getSnapshot, incrementForInterview } from "../services/cache.js";
 import { broadcastApuracao } from "../ws/apuracao.js";
 import { enqueue } from "../jobs/queue.js";
@@ -226,7 +227,7 @@ async function processOne(
     ) VALUES (
       ${it.clientUuid}, ${stratum.project_id}, ${interviewerId}, ${it.stratumId}, ${it.quotaId},
       ${it.respondent.sex}, ${it.respondent.age}, ${it.consentLgpd}, ${it.consentPhoto},
-      ${it.startedAt}, ${it.endedAt}, ${JSON.stringify(it.gpsStart)}::jsonb, ${JSON.stringify(it.gpsEnd)}::jsonb, ${it.audioKey ?? null},
+      ${it.startedAt}, ${it.endedAt}, ${JSON.stringify(it.gpsStart)}::jsonb, ${JSON.stringify(it.gpsEnd)}::jsonb, ${it.audioKey ? buildStorageKey("audio", it.clientUuid) : null},
       ${status}::interview_status, ${JSON.stringify(flags)}::jsonb, ${serverHash}, ${it.deviceHashedAt ?? null}, ${code}
     ) RETURNING id`);
   const interviewId = ins.rows[0].id as string;
@@ -250,11 +251,13 @@ async function processOne(
       ON CONFLICT (interview_id, question_code) DO NOTHING`);
   }
 
-  // Fotos.
+  // Fotos. PT-004: a storage_key é RECONSTRUÍDA no servidor a partir do clientUuid+seq
+  // (ignora a enviada pelo cliente) — fecha injeção de referência de objeto no bucket.
   for (const p of it.photos) {
+    const photoKey = buildStorageKey("photo", it.clientUuid, p.seq);
     await tx.execute(sql`
       INSERT INTO interview_photos (interview_id, seq, storage_key, taken_at, gps)
-      VALUES (${interviewId}, ${p.seq}, ${p.storageKey}, ${p.takenAt}, ${p.gps ? JSON.stringify(p.gps) : null}::jsonb)
+      VALUES (${interviewId}, ${p.seq}, ${photoKey}, ${p.takenAt}, ${p.gps ? JSON.stringify(p.gps) : null}::jsonb)
       ON CONFLICT (interview_id, seq) DO NOTHING`);
   }
 
