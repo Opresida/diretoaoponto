@@ -20,7 +20,7 @@ export function attachApuracaoWs(server: Server): void {
     if (!req.url?.startsWith("/ws/apuracao")) return;
     try {
       const token = new URL(req.url, "http://x").searchParams.get("token") ?? "";
-      const user = jwt.verify(token, process.env.JWT_SECRET!) as { role: string };
+      const user = jwt.verify(token, process.env.JWT_SECRET!, { algorithms: ["HS256"] }) as { role: string };
       if ((RANK[user.role] ?? -1) < RANK.statistician!) throw new Error("forbidden");
       wss!.handleUpgrade(req, socket, head, (ws) => wss!.emit("connection", ws, req));
     } catch {

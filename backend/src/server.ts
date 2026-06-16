@@ -1,7 +1,11 @@
 // Bootstrap do servidor — wiring de rotas, WS e error handler.
 import "dotenv/config";
+import { corsOrigins } from "./config/env.js"; // PT-016: valida env no boot (side-effect) + allowlist CORS
 import http from "http";
 import express from "express";
+import helmet from "helmet";
+import cors from "cors";
+import rateLimit from "express-rate-limit";
 
 import { requireAuth } from "./middleware/auth.js";
 import { errorHandler } from "./middleware/errors.js";
@@ -26,15 +30,39 @@ import invitesRoutes, { publicInvitesRouter } from "./routes/invites.js";
 import reportsRoutes from "./routes/reports.js";
 
 const app = express();
+
+// PT-006 — headers de segurança (HSTS, nosniff, X-Frame-Options, etc.).
+app.use(helmet());
+// PT-006 — CORS por allowlist. Em dev (sem CORS_ORIGINS) libera os apps locais.
+const devOrigins = [5173, 5174, 5175, 5176, 5177].flatMap((p) => [
+  `http://localhost:${p}`, `http://127.0.0.1:${p}`,
+]);
+const allowOrigins = corsOrigins.length ? corsOrigins : devOrigins;
+app.use(cors({
+  origin: (origin, cb) => {
+    // requests sem Origin (curl/health/same-origin) passam; demais checam allowlist.
+    if (!origin || allowOrigins.includes(origin)) return cb(null, true);
+    cb(new Error("not_allowed_by_cors"));
+  },
+  credentials: false,
+}));
 app.use(express.json({ limit: "2mb" }));
+// app atrás de proxy/CDN em prod → IP real p/ o rate-limit.
+app.set("trust proxy", 1);
+
+// PT-005 — rate-limit em superfícies de credencial (anti brute-force).
+const authLimiter = rateLimit({
+  windowMs: 15 * 60_000, max: 10, standardHeaders: true, legacyHeaders: false,
+  message: { error: "too_many_requests" },
+});
 
 app.get("/health", (_req, res) => res.json({ ok: true }));
 
 // Público (sem auth)
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/verify", verifyRoutes);
 app.use("/api/candidates", publicCandidatePhotoRouter); // só GET /:id/photo
-app.use("/api/public/invites", publicInvitesRouter); // ler contexto + aceitar
+app.use("/api/public/invites", authLimiter, publicInvitesRouter); // ler contexto + aceitar
 
 // Protegido
 app.use("/api/field", requireAuth, fieldRoutes);

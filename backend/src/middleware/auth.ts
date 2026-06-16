@@ -25,7 +25,8 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
     return;
   }
   try {
-    req.user = jwt.verify(header.slice(7), process.env.JWT_SECRET!) as AuthUser;
+    // PT-003 — algoritmo fixado (evita confusão de alg).
+    req.user = jwt.verify(header.slice(7), process.env.JWT_SECRET!, { algorithms: ["HS256"] }) as AuthUser;
     next();
   } catch {
     res.status(401).json({ error: "invalid_token" });
@@ -34,13 +35,13 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
 
 // PROMPT §2/§5 — access 15min + refresh.
 export function signAccess(user: AuthUser): string {
-  return jwt.sign(user, process.env.JWT_SECRET!, { expiresIn: "15m" });
+  return jwt.sign(user, process.env.JWT_SECRET!, { algorithm: "HS256", expiresIn: "15m" });
 }
 
 export function signRefresh(payload: { id: string }): string {
-  return jwt.sign(payload, process.env.JWT_REFRESH_SECRET!, { expiresIn: "30d" });
+  return jwt.sign(payload, process.env.JWT_REFRESH_SECRET!, { algorithm: "HS256", expiresIn: "30d" });
 }
 
 export function verifyRefresh(token: string): { id: string } {
-  return jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as { id: string };
+  return jwt.verify(token, process.env.JWT_REFRESH_SECRET!, { algorithms: ["HS256"] }) as { id: string };
 }
