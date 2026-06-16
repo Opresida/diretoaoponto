@@ -82,7 +82,7 @@ Relatório completo: `docs/SECURITY-AUDIT-2026-06-15.md` · consolidado: `docs/s
 - 🟠 ✅ **PT-003/005/006/016** (commit `a273e9a`) — `helmet()` + CORS allowlist + `express-rate-limit` (login/refresh/convite) + `algorithms:['HS256']` no JWT + `src/config/env.ts` valida no boot. *(rate-limit store Redis em prod = Fase 2)*
 - 🟠 ✅ **PT-004 + PT-021** (commit `6ca7640`) — `storageKey`/`audioKey` reconstruídas no servidor (sync) + allowlist de prefixo em `storage.ts`. *(residual: tabela de posse p/ bloquear PUT overwrite = Fase 2)*
 - 🟠 ✅ **PT-007** (commit `f8e5fb7`) — SSRF/open-redirect morto em `/candidates/:id/photo` (`isSafePublicImageUrl`: só https+FQDN).
-- 🟠 ⬜ **PT-008** — atualizar deps com CVE alto (`drizzle-orm`≥0.45.2, cadeia `ethers`→`ws`) + `npm audit` no CI. *(breaking, testar)*
+- 🟠 🟡 **PT-008** — `ws` CORRIGIDA (override `$ws`→8.21.0, inclui a de dentro do ethers); dev-only (`solc/tmp/esbuild`) não sobe (`npm run audit` = prod-only). **Resta** o upgrade real `drizzle-orm 0.31→0.45` (puxa `@neondatabase/serverless` 0.9→1.x = 2 majors na camada de banco) — agendado, com smoke contra Neon. Triagem/VEX: `docs/security-deps-triage.md` (drizzle = não-explorável no nosso uso).
 - 🟡 ⬜ **PT-009/010/011** — privacidade estatística: supressão de célula mínima nos agregados, coarsen do anexo do relatório, recibo salgado (HMAC `HASH_SALT`).
 - 🟡 ⬜ **PT-012/013/014/015** — rotação/revogação do refresh token; matar `senha123` do seed; Zod no convite admin; login constant-time.
 - 🟢 ⬜ **PT-017→021** — política de senha, race do código ENT-, `scenario` enum, rate-limit do `/verify` em Redis, allowlist de prefixo em `storage.ts`.
